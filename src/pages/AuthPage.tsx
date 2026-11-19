@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Eye,
   EyeOff,
@@ -17,7 +18,7 @@ import {
 import { ApiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
-// ─── Faculty Data ────────────────────────────────────────────────────────────
+// ─── Faculty Data ─────────────────────────────────────────────────────────────
 const FACULTY_GROUPS = [
   {
     label: 'Fakülteler',
@@ -138,47 +139,20 @@ function KvkkModal({ type, onClose }: { type: 'terms' | 'kvkk'; onClose: () => v
   );
 }
 
-// ─── Mock Email Preview Banner ────────────────────────────────────────────────
-function EmailPreviewBanner({ email, code, onClose }: { email: string; code: string; onClose: () => void }) {
-  useEffect(() => {
-    const t = setTimeout(onClose, 15000);
-    return () => clearTimeout(t);
-  }, [onClose]);
-
-  return (
-    <div className="fixed top-4 right-4 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 max-w-xs w-full">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-            <Mail className="w-3.5 h-3.5 text-emerald-700" />
-          </div>
-          <span className="text-xs font-bold text-slate-900">DPÜ Öğrenci Postası</span>
-        </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <p className="text-[11px] text-slate-500 mb-2">Kime: {email}</p>
-      <p className="text-xs text-slate-700 mb-2 font-medium">Doğrulama Kodunuz:</p>
-      <div className="font-mono text-2xl font-bold text-emerald-600 tracking-[0.3em] text-center py-1">
-        {code}
-      </div>
-      <p className="text-[10px] text-slate-400 mt-2 text-center">Bu önizleme 15 saniye sonra kapanır.</p>
-    </div>
-  );
-}
-
 // ─── OTP Input Row ────────────────────────────────────────────────────────────
 function OtpInputRow({
   digits,
   onChange,
   inputRefs,
+  disabled,
 }: {
   digits: string[];
   onChange: (digits: string[]) => void;
   inputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
+  disabled?: boolean;
 }) {
   const handleKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled) return;
     if (e.key === 'Backspace') {
       if (digits[i]) {
         const next = [...digits];
@@ -191,6 +165,7 @@ function OtpInputRow({
   };
 
   const handleChange = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
     const val = e.target.value.replace(/\D/g, '').slice(-1);
     const next = [...digits];
     next[i] = val;
@@ -199,6 +174,7 @@ function OtpInputRow({
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
+    if (disabled) return;
     e.preventDefault();
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
     const next = [...digits];
@@ -218,10 +194,11 @@ function OtpInputRow({
           inputMode="numeric"
           maxLength={1}
           value={d}
+          disabled={disabled}
           onChange={(e) => handleChange(i, e)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
-          className="w-11 h-12 text-center text-lg font-bold rounded-xl border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15 focus:outline-none bg-slate-50 text-slate-900 transition-all"
+          className="w-11 h-12 text-center text-lg font-bold rounded-xl border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15 focus:outline-none bg-slate-50 text-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         />
       ))}
     </div>
@@ -236,7 +213,7 @@ export default function AuthPage() {
 
   // ── View state ──
   const [view, setView] = useState<View>('login');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -263,8 +240,6 @@ export default function AuthPage() {
 
   // ── OTP / emailVerify ──
   const [pendingEmail, setPendingEmail] = useState('');
-  const [pendingUser, setPendingUser] = useState<any>(null);
-  const [pendingToken, setPendingToken] = useState('');
   const [verifyDigits, setVerifyDigits] = useState<string[]>(Array(6).fill(''));
   const verifyRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
   const [verifyCountdown, setVerifyCountdown] = useState(60);
@@ -280,9 +255,6 @@ export default function AuthPage() {
   const [showForgotPw, setShowForgotPw] = useState(false);
   const [showForgotPw2, setShowForgotPw2] = useState(false);
   const [forgotCountdown, setForgotCountdown] = useState(0);
-
-  // ── Mock email banner ──
-  const [banner, setBanner] = useState<{ email: string; code: string } | null>(null);
 
   // ── Faculty combobox click-outside ──
   useEffect(() => {
@@ -340,7 +312,7 @@ export default function AuthPage() {
       return;
     }
     if (!loginPassword) { setError('Lütfen şifrenizi girin.'); return; }
-    setLoading(true);
+    setIsLoading(true);
     try {
       const response = await ApiService.login({ email: loginEmail, password: loginPassword });
       login(response.user, response.token);
@@ -351,7 +323,7 @@ export default function AuthPage() {
     } catch (err: any) {
       setError(err?.message || 'Giriş yapılırken bir hata oluştu. Bilgilerinizi kontrol edin.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -368,32 +340,29 @@ export default function AuthPage() {
     if (!registerPw || registerPw.length < 6) { setError('Şifreniz en az 6 karakter olmalıdır.'); return; }
     if (registerPw !== registerPw2) { setError('Şifreler eşleşmiyor.'); return; }
     if (!kvkkChecked) { setError('Kullanım Koşulları ve KVKK Aydınlatma Metni\'ni onaylamanız gerekmektedir.'); return; }
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const result = await ApiService.sendVerificationCode(registerEmail.trim());
-      setBanner({ email: registerEmail.trim(), code: result.code });
-      // Store pending user data
-      setPendingUser({ fullName: fullName.trim(), email: registerEmail.trim(), faculty, password: registerPw });
+      await ApiService.sendVerificationCode(registerEmail.trim(), fullName.trim());
       startVerify(registerEmail.trim());
     } catch (err: any) {
-      setError(err?.message || 'Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.');
+      setError(err?.message || 'Doğrulama e-postası gönderilemedi. Lütfen sunucu SMTP bağlantısını kontrol edin.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   // ── RESEND CODE ──
   const handleResendCode = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
+    clearErrors();
     try {
-      const result = await ApiService.sendVerificationCode(pendingEmail);
-      setBanner({ email: pendingEmail, code: result.code });
+      await ApiService.sendVerificationCode(pendingEmail);
       setVerifyCountdown(60);
       setVerifyCountdownActive(true);
     } catch (err: any) {
-      setError(err?.message || 'Kod gönderilemedi.');
+      setError(err?.message || 'Doğrulama e-postası gönderilemedi. Lütfen sunucu SMTP bağlantısını kontrol edin.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [pendingEmail]);
 
@@ -403,14 +372,14 @@ export default function AuthPage() {
     clearErrors();
     const code = verifyDigits.join('');
     if (code.length < 6) { setError('Lütfen 6 haneli doğrulama kodunu girin.'); return; }
-    setLoading(true);
+    setIsLoading(true);
     try {
       const response = await ApiService.verifyEmailCode(pendingEmail, code);
       login(response.user, response.token);
     } catch (err: any) {
-      setError(err?.message || 'Doğrulama kodu hatalı. Lütfen tekrar deneyin.');
+      setError(err?.message || 'Doğrulama kodu hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -422,19 +391,18 @@ export default function AuthPage() {
       setError('Yalnızca @ogr.dpu.edu.tr uzantılı DPÜ öğrenci e-postası kabul edilir.');
       return;
     }
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const result = await ApiService.sendVerificationCode(forgotEmail.trim());
-      setBanner({ email: forgotEmail.trim(), code: result.code });
+      await ApiService.sendForgotPasswordCode(forgotEmail.trim());
       setForgotDigits(Array(6).fill(''));
       setForgotNewPw('');
       setForgotNewPw2('');
       setForgotCountdown(60);
       setForgotStep(2);
     } catch (err: any) {
-      setError(err?.message || 'Kod gönderilemedi.');
+      setError(err?.message || 'Sıfırlama e-postası gönderilemedi. Lütfen sunucu SMTP bağlantısını kontrol edin.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -446,7 +414,7 @@ export default function AuthPage() {
     if (code.length < 6) { setError('Lütfen 6 haneli doğrulama kodunu girin.'); return; }
     if (!forgotNewPw || forgotNewPw.length < 6) { setError('Şifreniz en az 6 karakter olmalıdır.'); return; }
     if (forgotNewPw !== forgotNewPw2) { setError('Şifreler eşleşmiyor.'); return; }
-    setLoading(true);
+    setIsLoading(true);
     try {
       await ApiService.resetPassword(forgotEmail.trim(), code, forgotNewPw);
       setView('login');
@@ -454,23 +422,23 @@ export default function AuthPage() {
       setForgotEmail('');
       setSuccessMessage('Şifreniz başarıyla güncellendi. Yeni şifrenizle giriş yapabilirsiniz.');
     } catch (err: any) {
-      setError(err?.message || 'Şifre güncellenemedi. Kod hatalı veya süresi dolmuş olabilir.');
+      setError(err?.message || 'Şifre güncellenemedi veya doğrulama kodu geçersiz.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   // ── Resend forgot code ──
   const handleResendForgot = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
+    clearErrors();
     try {
-      const result = await ApiService.sendVerificationCode(forgotEmail.trim());
-      setBanner({ email: forgotEmail.trim(), code: result.code });
+      await ApiService.sendForgotPasswordCode(forgotEmail.trim());
       setForgotCountdown(60);
     } catch (err: any) {
-      setError(err?.message || 'Kod gönderilemedi.');
+      setError(err?.message || 'Sıfırlama e-postası gönderilemedi. Lütfen sunucu SMTP bağlantısını kontrol edin.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [forgotEmail]);
 
@@ -483,24 +451,14 @@ export default function AuthPage() {
 
   const registerEmailInvalid = registerEmailTouched && registerEmail.length > 0 && !validateDpuEmail(registerEmail);
 
-  // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div className="h-screen w-screen overflow-hidden bg-[#091526] flex items-center justify-center font-sans select-none">
-      {/* Mock Email Banner */}
-      {banner && (
-        <EmailPreviewBanner
-          email={banner.email}
-          code={banner.code}
-          onClose={() => setBanner(null)}
-        />
-      )}
-
       {/* KVKK Modal */}
       {kvkkModal && <KvkkModal type={kvkkModal} onClose={() => setKvkkModal(null)} />}
 
       <div className="h-full w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
 
-        {/* ── LEFT COLUMN ── */}
+        {/* ── LEFT COLUMN: Campus Background Video ── */}
         <div className="hidden lg:flex lg:col-span-7 h-full relative overflow-hidden flex-col justify-between px-8 xl:px-12 pt-6 pb-8 xl:pt-8 xl:pb-10">
           <video
             src="/videos/tanitim.mp4"
@@ -560,10 +518,14 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* ── RIGHT COLUMN ── */}
+        {/* ── RIGHT COLUMN: Elevated Modern Auth Card ── */}
         <div className="lg:col-span-5 h-full bg-[#F8FAFC] [background-image:radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:20px_20px] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-6 xl:px-8 py-4 overflow-y-auto lg:overflow-hidden border-l border-slate-200/80">
 
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 w-full max-w-[440px]">
+          <motion.div
+            layout
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 w-full max-w-[440px] overflow-hidden"
+          >
 
             {/* Mobile Header */}
             <div className="lg:hidden flex items-center justify-between mb-4">
@@ -574,535 +536,562 @@ export default function AuthPage() {
               <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">@ogr.dpu.edu.tr</span>
             </div>
 
-            {/* ══════════════════════════════════════════════════
-                LOGIN VIEW
-            ══════════════════════════════════════════════════ */}
-            {view === 'login' && (
-              <>
-                {/* Tab Switcher */}
-                <div className="grid grid-cols-2 p-1 bg-slate-100/90 border border-slate-200/70 rounded-xl mb-3.5 gap-1">
-                  <button type="button" className="py-1.5 text-xs font-semibold rounded-lg transition-all bg-white text-slate-900 shadow-sm">
-                    Giriş Yap
-                  </button>
-                  <button type="button" onClick={() => switchToView('register')} className="py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-900">
-                    Kayıt Ol
-                  </button>
-                </div>
-
-                <div className="mb-3.5">
-                  <h2 className="text-lg font-bold text-slate-900 tracking-tight">Öğrenci Girişi</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Üniversite hesabınızla kampüs ağına bağlanın</p>
-                </div>
-
-                {/* Success Banner */}
-                {successMessage && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-800 flex items-start gap-2 mb-3">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span className="leading-snug font-medium">{successMessage}</span>
-                  </div>
-                )}
-
-                {/* Error Banner */}
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs text-red-700 flex items-start gap-2 mb-3">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <span className="leading-snug font-medium">{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleLoginSubmit} className="space-y-3">
-                  {/* Email */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Öğrenci E-postası</label>
-                    <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
-                      <Mail className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
-                      <input
-                        type="email"
-                        required
-                        placeholder="ad.soyad@ogr.dpu.edu.tr"
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
-                        className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Password */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Şifre</label>
-                    <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
-                      <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
-                      <input
-                        type={showLoginPw ? 'text' : 'password'}
-                        required
-                        placeholder="••••••••"
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
-                        className="w-full h-full pl-2.5 pr-9 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowLoginPw(!showLoginPw)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                      >
-                        {showLoginPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Remember me + Forgot */}
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                      />
-                      <span className="text-xs text-slate-600">Beni hatırla</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => switchToView('forgotPassword')}
-                      className="text-xs text-slate-500 hover:text-emerald-700 transition-colors"
-                    >
-                      Şifremi unuttum
-                    </button>
-                  </div>
-
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Giriş yapılıyor...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Giriş Yap</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-              </>
+            {/* Segmented Tab Switcher with Gliding layoutId Pill */}
+            {(view === 'login' || view === 'register') && (
+              <div className="grid grid-cols-2 p-1 bg-slate-100/90 border border-slate-200/70 rounded-xl mb-3.5 relative gap-1">
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => switchToView('login')}
+                  className={`relative py-1.5 text-xs font-semibold rounded-lg transition-colors z-10 ${
+                    view === 'login' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  {view === 'login' && (
+                    <motion.div
+                      layoutId="authActiveTabPill"
+                      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                      className="absolute inset-0 bg-white rounded-lg shadow-sm -z-10"
+                    />
+                  )}
+                  Giriş Yap
+                </button>
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => switchToView('register')}
+                  className={`relative py-1.5 text-xs font-semibold rounded-lg transition-colors z-10 ${
+                    view === 'register' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  {view === 'register' && (
+                    <motion.div
+                      layoutId="authActiveTabPill"
+                      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                      className="absolute inset-0 bg-white rounded-lg shadow-sm -z-10"
+                    />
+                  )}
+                  Kayıt Ol
+                </button>
+              </div>
             )}
 
-            {/* ══════════════════════════════════════════════════
-                REGISTER VIEW
-            ══════════════════════════════════════════════════ */}
-            {view === 'register' && (
-              <>
-                {/* Tab Switcher */}
-                <div className="grid grid-cols-2 p-1 bg-slate-100/90 border border-slate-200/70 rounded-xl mb-3.5 gap-1">
-                  <button type="button" onClick={() => switchToView('login')} className="py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-900">
-                    Giriş Yap
-                  </button>
-                  <button type="button" className="py-1.5 text-xs font-semibold rounded-lg transition-all bg-white text-slate-900 shadow-sm">
-                    Kayıt Ol
-                  </button>
-                </div>
+            {/* Success Banner */}
+            {successMessage && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-800 flex items-start gap-2 mb-3">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span className="leading-snug font-medium">{successMessage}</span>
+              </div>
+            )}
 
-                <div className="mb-3">
-                  <h2 className="text-lg font-bold text-slate-900 tracking-tight">Yeni Öğrenci Kaydı</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Yalnızca DPÜ öğrencileri için doğrulanmış hesap</p>
-                </div>
+            {/* Error Banner */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs text-red-700 flex items-start gap-2 mb-3">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <span className="leading-snug font-medium">{error}</span>
+              </div>
+            )}
 
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs text-red-700 flex items-start gap-2 mb-3">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <span className="leading-snug font-medium">{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleRegisterSubmit} className="space-y-2.5">
-                  {/* Full Name */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Ad Soyad</label>
-                    <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
-                      <User className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Adınız Soyadınız"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                      />
-                    </div>
+            {/* Directional Slide & Fade Forms */}
+            <AnimatePresence mode="wait" initial={false}>
+              {view === 'login' && (
+                <motion.div
+                  key="login"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="mb-3.5">
+                    <h2 className="text-lg font-bold text-slate-900 tracking-tight">Öğrenci Girişi</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">Üniversite hesabınızla kampüs ağına bağlanın</p>
                   </div>
 
-                  {/* Email */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Öğrenci E-postası</label>
-                    <div className={`relative flex items-center h-10 rounded-xl bg-slate-50/70 border transition-all focus-within:bg-white focus-within:ring-2 ${registerEmailInvalid ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-500/15' : 'border-slate-200 focus-within:border-emerald-600 focus-within:ring-emerald-500/15'}`}>
-                      <Mail className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
-                      <input
-                        type="email"
-                        required
-                        placeholder="ad.soyad@ogr.dpu.edu.tr"
-                        value={registerEmail}
-                        onChange={(e) => setRegisterEmail(e.target.value)}
-                        onBlur={() => setRegisterEmailTouched(true)}
-                        className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                      />
-                    </div>
-                    {registerEmailInvalid && (
-                      <p className="text-[10px] text-red-600 mt-1">Yalnızca @ogr.dpu.edu.tr uzantılı DPÜ öğrenci e-postası kabul edilir.</p>
-                    )}
-                  </div>
-
-                  {/* Faculty Combobox */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Fakülte / MYO</label>
-                    <div className="relative" ref={facultyRef}>
-                      <div
-                        className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all cursor-pointer"
-                        onClick={() => setFacultyOpen(!facultyOpen)}
-                      >
-                        <Building2 className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                  <form onSubmit={handleLoginSubmit} className="space-y-3">
+                    {/* Email */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">Öğrenci E-postası</label>
+                      <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
+                        <Mail className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
                         <input
-                          type="text"
-                          placeholder="Fakülte veya MYO ara..."
-                          value={facultyOpen ? facultySearch : (faculty || '')}
-                          onChange={(e) => { setFacultySearch(e.target.value); setFacultyOpen(true); }}
-                          onFocus={() => { setFacultyOpen(true); setFacultySearch(''); }}
-                          className="w-full h-full pl-2.5 pr-7 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none cursor-pointer"
-                          readOnly={!facultyOpen}
+                          type="email"
+                          required
+                          disabled={isLoading}
+                          placeholder="ad.soyad@ogr.dpu.edu.tr"
+                          value={loginEmail}
+                          onChange={(e) => setLoginEmail(e.target.value)}
+                          className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                         />
-                        <ChevronDown className={`absolute right-2.5 w-4 h-4 text-slate-400 transition-transform ${facultyOpen ? 'rotate-180' : ''}`} />
                       </div>
-                      {facultyOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-1 z-30 bg-white border border-slate-200 rounded-xl shadow-xl max-h-52 overflow-y-auto">
-                          {filteredGroups.length === 0 ? (
-                            <div className="px-3 py-2 text-xs text-slate-400">Sonuç bulunamadı.</div>
-                          ) : (
-                            filteredGroups.map((group) => (
-                              <div key={group.label}>
-                                <div className="px-3 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{group.label}</div>
-                                {group.items.map((item) => (
-                                  <button
-                                    key={item}
-                                    type="button"
-                                    className={`w-full text-left px-3 py-1.5 text-xs transition-colors hover:bg-emerald-50 hover:text-emerald-800 ${faculty === item ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-slate-700'}`}
-                                    onClick={() => { setFaculty(item); setFacultySearch(''); setFacultyOpen(false); }}
-                                  >
-                                    {item}
-                                  </button>
-                                ))}
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      )}
                     </div>
-                  </div>
 
-                  {/* Password row */}
-                  <div className="grid grid-cols-2 gap-2.5">
+                    {/* Password */}
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-700 mb-1">Şifre</label>
                       <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
                         <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
                         <input
-                          type={showRegPw ? 'text' : 'password'}
+                          type={showLoginPw ? 'text' : 'password'}
                           required
-                          placeholder="••••••"
-                          value={registerPw}
-                          onChange={(e) => setRegisterPw(e.target.value)}
-                          className="w-full h-full pl-2.5 pr-7 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                          disabled={isLoading}
+                          placeholder="••••••••"
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          className="w-full h-full pl-2.5 pr-9 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                         />
-                        <button type="button" onClick={() => setShowRegPw(!showRegPw)} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                          {showRegPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        <button
+                          type="button"
+                          disabled={isLoading}
+                          onClick={() => setShowLoginPw(!showLoginPw)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50"
+                        >
+                          {showLoginPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">Şifre Tekrar</label>
-                      <div className={`relative flex items-center h-10 rounded-xl bg-slate-50/70 border transition-all focus-within:bg-white focus-within:ring-2 ${registerPw2 && registerPw !== registerPw2 ? 'border-red-400 focus-within:border-red-400 focus-within:ring-red-500/15' : 'border-slate-200 focus-within:border-emerald-600 focus-within:ring-emerald-500/15'}`}>
-                        <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+
+                    {/* Remember me + Forgot */}
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer">
                         <input
-                          type={showRegPw2 ? 'text' : 'password'}
-                          required
-                          placeholder="••••••"
-                          value={registerPw2}
-                          onChange={(e) => setRegisterPw2(e.target.value)}
-                          className="w-full h-full pl-2.5 pr-7 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                          type="checkbox"
+                          checked={rememberMe}
+                          disabled={isLoading}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer disabled:opacity-50"
                         />
-                        <button type="button" onClick={() => setShowRegPw2(!showRegPw2)} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                          {showRegPw2 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  {registerPw2 && registerPw !== registerPw2 && (
-                    <p className="text-[10px] text-red-600 -mt-1">Şifreler eşleşmiyor.</p>
-                  )}
-
-                  {/* KVKK Checkbox */}
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={kvkkChecked}
-                      onChange={(e) => setKvkkChecked(e.target.checked)}
-                      className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 shrink-0 cursor-pointer"
-                    />
-                    <span className="text-[11px] text-slate-600 leading-snug">
-                      <button type="button" onClick={() => setKvkkModal('terms')} className="underline text-slate-700 hover:text-emerald-700 transition-colors">Kullanım Koşulları</button>
-                      {'\'nı ve '}
-                      <button type="button" onClick={() => setKvkkModal('kvkk')} className="underline text-slate-700 hover:text-emerald-700 transition-colors">KVKK Aydınlatma Metni</button>
-                      {'\'ni okudum, onaylıyorum.'}
-                    </span>
-                  </label>
-
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Doğrulama kodu gönderiliyor...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Öğrenci Hesabı Oluştur</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-              </>
-            )}
-
-            {/* ══════════════════════════════════════════════════
-                EMAIL VERIFY VIEW
-            ══════════════════════════════════════════════════ */}
-            {view === 'emailVerify' && (
-              <div>
-                <div className="flex flex-col items-center mb-4">
-                  <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
-                    <MailOpen className="w-7 h-7 text-emerald-700" />
-                  </div>
-                  <h2 className="text-lg font-bold text-slate-900 tracking-tight text-center">E-posta Doğrulama</h2>
-                  <p className="text-xs text-slate-500 mt-1 text-center max-w-xs">
-                    <span className="font-semibold text-slate-700">{pendingEmail}</span> adresine 6 haneli doğrulama kodu gönderdik.
-                  </p>
-                </div>
-
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs text-red-700 flex items-start gap-2 mb-3">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <span className="leading-snug font-medium">{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleVerifySubmit}>
-                  <OtpInputRow digits={verifyDigits} onChange={setVerifyDigits} inputRefs={verifyRefs} />
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Doğrulanıyor...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Doğrulamayı Tamamla</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                <div className="flex items-center justify-between mt-4">
-                  <button
-                    type="button"
-                    onClick={() => switchToView('register')}
-                    className="text-xs text-slate-500 hover:text-emerald-700 transition-colors"
-                  >
-                    E-postayı Düzenle
-                  </button>
-                  <button
-                    type="button"
-                    disabled={verifyCountdown > 0 || loading}
-                    onClick={handleResendCode}
-                    className="text-xs text-slate-500 hover:text-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {verifyCountdown > 0 ? `Kodu Tekrar Gönder (${verifyCountdown}s)` : 'Kodu Tekrar Gönder'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ══════════════════════════════════════════════════
-                FORGOT PASSWORD VIEW
-            ══════════════════════════════════════════════════ */}
-            {view === 'forgotPassword' && (
-              <div>
-                {forgotStep === 1 ? (
-                  <>
-                    <div className="mb-4">
-                      <h2 className="text-lg font-bold text-slate-900 tracking-tight">Şifremi Unuttum</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">@ogr.dpu.edu.tr e-posta adresinizi girin</p>
+                        <span className="text-xs text-slate-600">Beni hatırla</span>
+                      </label>
+                      <button
+                        type="button"
+                        disabled={isLoading}
+                        onClick={() => switchToView('forgotPassword')}
+                        className="text-xs text-slate-500 hover:text-emerald-700 transition-colors disabled:opacity-50"
+                      >
+                        Şifremi unuttum
+                      </button>
                     </div>
 
-                    {error && (
-                      <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs text-red-700 flex items-start gap-2 mb-3">
-                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                        <span className="leading-snug font-medium">{error}</span>
-                      </div>
-                    )}
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Giriş yapılıyor...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Giriş Yap</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </motion.div>
+              )}
 
-                    <form onSubmit={handleForgotStep1} className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Öğrenci E-postası</label>
-                        <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
-                          <Mail className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+              {view === 'register' && (
+                <motion.div
+                  key="register"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="mb-3">
+                    <h2 className="text-lg font-bold text-slate-900 tracking-tight">Yeni Öğrenci Kaydı</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">Yalnızca DPÜ öğrencileri için doğrulanmış hesap</p>
+                  </div>
+
+                  <form onSubmit={handleRegisterSubmit} className="space-y-2.5">
+                    {/* Full Name */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">Ad Soyad</label>
+                      <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
+                        <User className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                        <input
+                          type="text"
+                          required
+                          disabled={isLoading}
+                          placeholder="Adınız Soyadınız"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Email */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">Öğrenci E-postası</label>
+                      <div className={`relative flex items-center h-10 rounded-xl bg-slate-50/70 border transition-all focus-within:bg-white focus-within:ring-2 ${registerEmailInvalid ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-500/15' : 'border-slate-200 focus-within:border-emerald-600 focus-within:ring-emerald-500/15'}`}>
+                        <Mail className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                        <input
+                          type="email"
+                          required
+                          disabled={isLoading}
+                          placeholder="ad.soyad@ogr.dpu.edu.tr"
+                          value={registerEmail}
+                          onChange={(e) => setRegisterEmail(e.target.value)}
+                          onBlur={() => setRegisterEmailTouched(true)}
+                          className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                      {registerEmailInvalid && (
+                        <p className="text-[10px] text-red-600 mt-1">Yalnızca @ogr.dpu.edu.tr uzantılı DPÜ öğrenci e-postası kabul edilir.</p>
+                      )}
+                    </div>
+
+                    {/* Faculty Combobox */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">Fakülte / MYO</label>
+                      <div className="relative" ref={facultyRef}>
+                        <div
+                          className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all cursor-pointer"
+                          onClick={() => { if (!isLoading) setFacultyOpen(!facultyOpen); }}
+                        >
+                          <Building2 className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
                           <input
-                            type="email"
-                            required
-                            placeholder="ad.soyad@ogr.dpu.edu.tr"
-                            value={forgotEmail}
-                            onChange={(e) => setForgotEmail(e.target.value)}
-                            className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                            type="text"
+                            placeholder="Fakülte veya MYO ara..."
+                            value={facultyOpen ? facultySearch : (faculty || '')}
+                            disabled={isLoading}
+                            onChange={(e) => { setFacultySearch(e.target.value); setFacultyOpen(true); }}
+                            onFocus={() => { setFacultyOpen(true); setFacultySearch(''); }}
+                            className="w-full h-full pl-2.5 pr-7 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            readOnly={!facultyOpen}
                           />
+                          <ChevronDown className={`absolute right-2.5 w-4 h-4 text-slate-400 transition-transform ${facultyOpen ? 'rotate-180' : ''}`} />
+                        </div>
+                        {facultyOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-1 z-30 bg-white border border-slate-200 rounded-xl shadow-xl max-h-52 overflow-y-auto">
+                            {filteredGroups.length === 0 ? (
+                              <div className="px-3 py-2 text-xs text-slate-400">Sonuç bulunamadı.</div>
+                            ) : (
+                              filteredGroups.map((group) => (
+                                <div key={group.label}>
+                                  <div className="px-3 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{group.label}</div>
+                                  {group.items.map((item) => (
+                                    <button
+                                      key={item}
+                                      type="button"
+                                      className={`w-full text-left px-3 py-1.5 text-xs transition-colors hover:bg-emerald-50 hover:text-emerald-800 ${faculty === item ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-slate-700'}`}
+                                      onClick={() => { setFaculty(item); setFacultySearch(''); setFacultyOpen(false); }}
+                                    >
+                                      {item}
+                                    </button>
+                                  ))}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Password row */}
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Şifre</label>
+                        <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
+                          <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                          <input
+                            type={showRegPw ? 'text' : 'password'}
+                            required
+                            disabled={isLoading}
+                            placeholder="••••••"
+                            value={registerPw}
+                            onChange={(e) => setRegisterPw(e.target.value)}
+                            className="w-full h-full pl-2.5 pr-7 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                          <button type="button" disabled={isLoading} onClick={() => setShowRegPw(!showRegPw)} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50">
+                            {showRegPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
                         </div>
                       </div>
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Gönderiliyor...</span>
-                          </>
-                        ) : (
-                          <span>Kodu Gönder</span>
-                        )}
-                      </button>
-                    </form>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Şifre Tekrar</label>
+                        <div className={`relative flex items-center h-10 rounded-xl bg-slate-50/70 border transition-all focus-within:bg-white focus-within:ring-2 ${registerPw2 && registerPw !== registerPw2 ? 'border-red-400 focus-within:border-red-400 focus-within:ring-red-500/15' : 'border-slate-200 focus-within:border-emerald-600 focus-within:ring-emerald-500/15'}`}>
+                          <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                          <input
+                            type={showRegPw2 ? 'text' : 'password'}
+                            required
+                            disabled={isLoading}
+                            placeholder="••••••"
+                            value={registerPw2}
+                            onChange={(e) => setRegisterPw2(e.target.value)}
+                            className="w-full h-full pl-2.5 pr-7 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                          <button type="button" disabled={isLoading} onClick={() => setShowRegPw2(!showRegPw2)} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50">
+                            {showRegPw2 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    {registerPw2 && registerPw !== registerPw2 && (
+                      <p className="text-[10px] text-red-600 -mt-1">Şifreler eşleşmiyor.</p>
+                    )}
+
+                    {/* KVKK Checkbox */}
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={kvkkChecked}
+                        disabled={isLoading}
+                        onChange={(e) => setKvkkChecked(e.target.checked)}
+                        className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 shrink-0 cursor-pointer disabled:opacity-50"
+                      />
+                      <span className="text-[11px] text-slate-600 leading-snug">
+                        <button type="button" onClick={() => setKvkkModal('terms')} className="underline text-slate-700 hover:text-emerald-700 transition-colors">Kullanım Koşulları</button>
+                        {'\'nı ve '}
+                        <button type="button" onClick={() => setKvkkModal('kvkk')} className="underline text-slate-700 hover:text-emerald-700 transition-colors">KVKK Aydınlatma Metni</button>
+                        {'\'ni okudum, onaylıyorum.'}
+                      </span>
+                    </label>
+
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Doğrulama kodu gönderiliyor...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Öğrenci Hesabı Oluştur</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </motion.div>
+              )}
+
+              {view === 'emailVerify' && (
+                <motion.div
+                  key="emailVerify"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="flex flex-col items-center mb-4">
+                    <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
+                      <MailOpen className="w-7 h-7 text-emerald-700" />
+                    </div>
+                    <h2 className="text-lg font-bold text-slate-900 tracking-tight text-center">E-posta Doğrulama</h2>
+                    <p className="text-xs text-slate-600 mt-1.5 text-center leading-relaxed">
+                      <span className="font-semibold text-slate-800">{pendingEmail}</span> adresine 6 haneli doğrulama kodu gönderdik. Lütfen gelen kutunuzu ve gereksiz (spam) klasörünü kontrol edin.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleVerifySubmit}>
+                    <OtpInputRow digits={verifyDigits} onChange={setVerifyDigits} inputRefs={verifyRefs} disabled={isLoading} />
 
                     <button
-                      type="button"
-                      onClick={() => switchToView('login')}
-                      className="mt-4 w-full text-xs text-slate-500 hover:text-emerald-700 transition-colors text-center"
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      Giriş ekranına dön
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Kod doğrulanıyor...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Doğrulamayı Tamamla</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
                     </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="mb-4">
-                      <h2 className="text-lg font-bold text-slate-900 tracking-tight">Yeni Şifre Belirle</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        <span className="font-semibold text-slate-700">{forgotEmail}</span> adresine gönderilen kodu ve yeni şifrenizi girin.
-                      </p>
-                    </div>
+                  </form>
 
-                    {error && (
-                      <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs text-red-700 flex items-start gap-2 mb-3">
-                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                        <span className="leading-snug font-medium">{error}</span>
+                  <div className="flex items-center justify-between mt-4">
+                    <button
+                      type="button"
+                      disabled={isLoading}
+                      onClick={() => switchToView('register')}
+                      className="text-xs text-slate-500 hover:text-emerald-700 transition-colors disabled:opacity-50"
+                    >
+                      E-postayı Değiştir
+                    </button>
+                    <button
+                      type="button"
+                      disabled={verifyCountdown > 0 || isLoading}
+                      onClick={handleResendCode}
+                      className="text-xs text-slate-500 hover:text-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {verifyCountdown > 0 ? `Kodu Tekrar Gönder (${verifyCountdown}s)` : 'Kodu Tekrar Gönder'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {view === 'forgotPassword' && (
+                <motion.div
+                  key={`forgotPassword_${forgotStep}`}
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {forgotStep === 1 ? (
+                    <>
+                      <div className="mb-4">
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Şifremi Unuttum</h2>
+                        <p className="text-xs text-slate-500 mt-0.5">@ogr.dpu.edu.tr e-posta adresinizi girin</p>
                       </div>
-                    )}
 
-                    <form onSubmit={handleForgotStep2} className="space-y-3">
-                      <OtpInputRow digits={forgotDigits} onChange={setForgotDigits} inputRefs={forgotRefs} />
-
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Yeni Şifre</label>
-                        <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
-                          <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
-                          <input
-                            type={showForgotPw ? 'text' : 'password'}
-                            required
-                            placeholder="En az 6 karakter"
-                            value={forgotNewPw}
-                            onChange={(e) => setForgotNewPw(e.target.value)}
-                            className="w-full h-full pl-2.5 pr-9 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                          />
-                          <button type="button" onClick={() => setShowForgotPw(!showForgotPw)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                            {showForgotPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
+                      <form onSubmit={handleForgotStep1} className="space-y-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">Öğrenci E-postası</label>
+                          <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
+                            <Mail className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                            <input
+                              type="email"
+                              required
+                              disabled={isLoading}
+                              placeholder="ad.soyad@ogr.dpu.edu.tr"
+                              value={forgotEmail}
+                              onChange={(e) => setForgotEmail(e.target.value)}
+                              className="w-full h-full pl-2.5 pr-3 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
+                          </div>
                         </div>
-                      </div>
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Sıfırlama kodu gönderiliyor...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Sıfırlama Kodu Gönder</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      </form>
 
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Yeni Şifre Tekrar</label>
-                        <div className={`relative flex items-center h-10 rounded-xl bg-slate-50/70 border transition-all focus-within:bg-white focus-within:ring-2 ${forgotNewPw2 && forgotNewPw !== forgotNewPw2 ? 'border-red-400 focus-within:border-red-400 focus-within:ring-red-500/15' : 'border-slate-200 focus-within:border-emerald-600 focus-within:ring-emerald-500/15'}`}>
-                          <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
-                          <input
-                            type={showForgotPw2 ? 'text' : 'password'}
-                            required
-                            placeholder="••••••••"
-                            value={forgotNewPw2}
-                            onChange={(e) => setForgotNewPw2(e.target.value)}
-                            className="w-full h-full pl-2.5 pr-9 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                          />
-                          <button type="button" onClick={() => setShowForgotPw2(!showForgotPw2)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                            {showForgotPw2 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                        {forgotNewPw2 && forgotNewPw !== forgotNewPw2 && (
-                          <p className="text-[10px] text-red-600 mt-1">Şifreler eşleşmiyor.</p>
-                        )}
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Güncelleniyor...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Şifremi Güncelle</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-                    </form>
-
-                    <div className="flex items-center justify-between mt-4">
                       <button
                         type="button"
-                        onClick={() => setForgotStep(1)}
-                        className="text-xs text-slate-500 hover:text-emerald-700 transition-colors"
+                        disabled={isLoading}
+                        onClick={() => switchToView('login')}
+                        className="mt-4 w-full text-xs text-slate-500 hover:text-emerald-700 transition-colors text-center disabled:opacity-50"
                       >
-                        E-postayı Düzenle
+                        Giriş ekranına dön
                       </button>
-                      <button
-                        type="button"
-                        disabled={forgotCountdown > 0 || loading}
-                        onClick={handleResendForgot}
-                        className="text-xs text-slate-500 hover:text-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {forgotCountdown > 0 ? `Kodu Tekrar Gönder (${forgotCountdown}s)` : 'Kodu Tekrar Gönder'}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="mb-4">
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Yeni Şifre Belirle</h2>
+                        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                          <span className="font-semibold text-slate-700">{forgotEmail}</span> adresine gönderilen kodu ve yeni şifrenizi girin.
+                        </p>
+                      </div>
 
-          </div>
+                      <form onSubmit={handleForgotStep2} className="space-y-3">
+                        <OtpInputRow digits={forgotDigits} onChange={setForgotDigits} inputRefs={forgotRefs} disabled={isLoading} />
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">Yeni Şifre</label>
+                          <div className="relative flex items-center h-10 rounded-xl bg-slate-50/70 border border-slate-200 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/15 transition-all">
+                            <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                            <input
+                              type={showForgotPw ? 'text' : 'password'}
+                              required
+                              disabled={isLoading}
+                              placeholder="En az 6 karakter"
+                              value={forgotNewPw}
+                              onChange={(e) => setForgotNewPw(e.target.value)}
+                              className="w-full h-full pl-2.5 pr-9 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
+                            <button type="button" disabled={isLoading} onClick={() => setShowForgotPw(!showForgotPw)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50">
+                              {showForgotPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">Yeni Şifre Tekrar</label>
+                          <div className={`relative flex items-center h-10 rounded-xl bg-slate-50/70 border transition-all focus-within:bg-white focus-within:ring-2 ${forgotNewPw2 && forgotNewPw !== forgotNewPw2 ? 'border-red-400 focus-within:border-red-400 focus-within:ring-red-500/15' : 'border-slate-200 focus-within:border-emerald-600 focus-within:ring-emerald-500/15'}`}>
+                            <Lock className="w-4 h-4 text-slate-400 ml-3 shrink-0" />
+                            <input
+                              type={showForgotPw2 ? 'text' : 'password'}
+                              required
+                              disabled={isLoading}
+                              placeholder="••••••••"
+                              value={forgotNewPw2}
+                              onChange={(e) => setForgotNewPw2(e.target.value)}
+                              className="w-full h-full pl-2.5 pr-9 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
+                            <button type="button" disabled={isLoading} onClick={() => setShowForgotPw2(!showForgotPw2)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50">
+                              {showForgotPw2 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                          {forgotNewPw2 && forgotNewPw !== forgotNewPw2 && (
+                            <p className="text-[10px] text-red-600 mt-1">Şifreler eşleşmiyor.</p>
+                          )}
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="w-full h-11 px-4 bg-[#0F172A] hover:bg-[#0F766E] text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Şifre güncelleniyor...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Şifremi Güncelle</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      </form>
+
+                      <div className="flex items-center justify-between mt-4">
+                        <button
+                          type="button"
+                          disabled={isLoading}
+                          onClick={() => setForgotStep(1)}
+                          className="text-xs text-slate-500 hover:text-emerald-700 transition-colors disabled:opacity-50"
+                        >
+                          E-postayı Değiştir
+                        </button>
+                        <button
+                          type="button"
+                          disabled={forgotCountdown > 0 || isLoading}
+                          onClick={handleResendForgot}
+                          className="text-xs text-slate-500 hover:text-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {forgotCountdown > 0 ? `Kodu Tekrar Gönder (${forgotCountdown}s)` : 'Kodu Tekrar Gönder'}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+          </motion.div>
         </div>
       </div>
     </div>
