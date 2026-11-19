@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340" width="100%" height="100%" fill="none">
+  <!-- Warm background plate -->
+  <rect width="520" height="340" rx="16" fill="#F7F7F5"/>
+  <rect x="0.5" y="0.5" width="519" height="339" rx="15.5" stroke="#E4E4E7"/>
+
+  <!-- Subtle ground horizon -->
+  <line x1="30" y1="260" x2="490" y2="260" stroke="#18181B" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="266" x2="470" y2="266" stroke="#E4E4E7" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Campus Trees Left -->
+  <g stroke="#18181B" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M 65 260 L 65 200" stroke-width="2"/>
+    <path d="M 65 200 Q 50 180 55 160 Q 60 140 75 140 Q 90 140 95 160 Q 100 180 85 200 Z" fill="#E4E4E7"/>
+    <path d="M 65 205 L 55 190"/>
+    <path d="M 65 195 L 75 180"/>
+
+    <path d="M 100 260 L 100 215" stroke-width="2"/>
+    <path d="M 100 215 Q 88 200 92 185 Q 98 170 110 170 Q 122 170 126 185 Q 130 200 118 215 Z" fill="#F4F4F5"/>
+  </g>
+
+  <!-- DPÜ Evliya Çelebi Kampüsü Central Gateway & Faculty Building -->
+  <!-- Main building block -->
+  <rect x="140" y="110" width="240" height="150" fill="#FFFFFF" stroke="#18181B" stroke-width="2"/>
+  
+  <!-- Central pediment / gable (Triangular fronton) -->
+  <polygon points="260,65 170,110 350,110" fill="#FFFFFF" stroke="#18181B" stroke-width="2" stroke-linejoin="round"/>
+  
+  <!-- Pediment decorative clock / emblem -->
+  <circle cx="260" cy="92" r="10" fill="#F7F7F5" stroke="#18181B" stroke-width="1.5"/>
+  <circle cx="260" cy="92" r="2.5" fill="#0F766E"/>
+  <line x1="260" y1="87" x2="260" y2="92" stroke="#18181B" stroke-width="1.2"/>
+  <line x1="260" y1="92" x2="264" y2="92" stroke="#18181B" stroke-width="1.2"/>
+
+  <!-- Classical Columns / Pillars -->
+  <g fill="#F7F7F5" stroke="#18181B" stroke-width="1.5">
+    <rect x="180" y="110" width="14" height="150"/>
+    <rect x="220" y="110" width="14" height="150"/>
+    <rect x="286" y="110" width="14" height="150"/>
+    <rect x="326" y="110" width="14" height="150"/>
+  </g>
+
+  <!-- Classical Arched Entrance Portal -->
+  <path d="M 242 260 L 242 195 Q 260 180 278 195 L 278 260 Z" fill="#18181B"/>
+  <path d="M 247 260 L 247 200 Q 260 188 273 200 L 273 260 Z" fill="#0F766E" opacity="0.3"/>
+  <line x1="260" y1="187" x2="260" y2="260" stroke="#FFFFFF" stroke-width="1"/>
+
+  <!-- Upper Windows with Arches -->
+  <g fill="#F4F4F5" stroke="#18181B" stroke-width="1.5">
+    <path d="M 152 145 L 152 135 Q 160 128 168 135 L 168 145 Z"/>
+    <line x1="160" y1="130" x2="160" y2="145"/>
+    <line x1="152" y1="138" x2="168" y2="138"/>
+
+    <path d="M 352 145 L 352 135 Q 360 128 368 135 L 368 145 Z"/>
+    <line x1="360" y1="130" x2="360" y2="145"/>
+    <line x1="352" y1="138" x2="368" y2="138"/>
+
+    <!-- Middle floor windows -->
+    <rect x="152" y="170" width="16" height="22" rx="2"/>
+    <line x1="160" y1="170" x2="160" y2="192"/>
+    <line x1="152" y1="181" x2="168" y2="181"/>
+
+    <rect x="352" y="170" width="16" height="22" rx="2"/>
+    <line x1="360" y1="170" x2="360" y2="192"/>
+    <line x1="352" y1="181" x2="368" y2="181"/>
+
+    <rect x="152" y="210" width="16" height="22" rx="2"/>
+    <rect x="352" y="210" width="16" height="22" rx="2"/>
+  </g>
+
+  <!-- Left & Right Wing Extensions -->
+  <rect x="90" y="150" width="50" height="110" fill="#FFFFFF" stroke="#18181B" stroke-width="1.5"/>
+  <line x1="90" y1="150" x2="140" y2="150" stroke="#18181B" stroke-width="1.5"/>
+  <rect x="102" y="170" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
+  <rect x="102" y="205" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
+
+  <rect x="380" y="150" width="50" height="110" fill="#FFFFFF" stroke="#18181B" stroke-width="1.5"/>
+  <rect x="404" y="170" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
+  <rect x="404" y="205" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
+
+  <!-- Right Tree & Lamppost -->
+  <g stroke="#18181B" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M 445 260 L 445 205" stroke-width="2"/>
+    <path d="M 445 205 Q 430 185 435 165 Q 442 145 455 145 Q 470 145 475 165 Q 480 185 465 205 Z" fill="#E4E4E7"/>
+    <line x1="445" y1="210" x2="438" y2="198"/>
+    <line x1="445" y1="202" x2="453" y2="192"/>
+
+    <!-- Campus light post -->
+    <path d="M 400 260 L 400 220 Q 400 215 395 215 L 393 215"/>
+    <circle cx="393" cy="217" r="2.5" fill="#0F766E"/>
+  </g>
+
+  <!-- Editorial Walking Student Silhouettes -->
+  <!-- Student 1 (carrying backpack on back) -->
+  <g fill="#18181B" stroke="#18181B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Head -->
+    <circle cx="195" cy="235" r="4.5"/>
+    <!-- Torso -->
+    <line x1="195" y1="240" x2="195" y2="252" stroke-width="2"/>
+    <!-- Backpack -->
+    <rect x="189" y="242" width="4" height="7" rx="1.5" fill="#0F766E"/>
+    <!-- Legs walking -->
+    <line x1="195" y1="252" x2="192" y2="260" stroke-width="1.8"/>
+    <line x1="195" y1="252" x2="199" y2="260" stroke-width="1.8"/>
+  </g>
+
+  <!-- Student 2 (carrying folder/laptop) -->
+  <g fill="#18181B" stroke="#18181B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Head -->
+    <circle cx="310" cy="236" r="4.5"/>
+    <!-- Torso -->
+    <line x1="310" y1="241" x2="310" y2="252" stroke-width="2"/>
+    <!-- Folder under arm -->
+    <rect x="312" y="244" width="5" height="6" rx="1" fill="#FFFFFF" stroke="#18181B" stroke-width="1"/>
+    <!-- Legs -->
+    <line x1="310" y1="252" x2="307" y2="260" stroke-width="1.8"/>
+    <line x1="310" y1="252" x2="314" y2="260" stroke-width="1.8"/>
+  </g>
+
+  <!-- Campus Emerald Badge at Top Corner -->
+  <g transform="translate(390, 20)">
+    <rect width="110" height="26" rx="13" fill="#FFFFFF" stroke="#E4E4E7"/>
+    <circle cx="16" cy="13" r="5" fill="#0F766E"/>
+    <path d="M 14 13 L 15.5 14.5 L 18 11.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="28" y="17" fill="#18181B" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" letter-spacing="-0.2">DPÜ Kampüs</text>
+  </g>
+</svg>

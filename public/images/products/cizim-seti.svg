@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="100%" height="100%" fill="none">
+  <!-- Hard-shell Plastic Case Base -->
+  <rect x="25" y="30" width="190" height="180" rx="14" fill="#FFFFFF" stroke="#18181B" stroke-width="2.5"/>
+  <rect x="31" y="36" width="178" height="168" rx="10" fill="#F7F7F5" stroke="#E4E4E7" stroke-width="1.2"/>
+
+  <!-- Velvet Instrument Mold Grooves -->
+  <g fill="#E4E4E7" stroke="#18181B" stroke-width="1.2">
+    <!-- Center Compass (Pergel) Groove -->
+    <path d="M 120 48 L 105 175 L 115 175 L 120 120 L 125 175 L 135 175 Z" opacity="0.4"/>
+  </g>
+
+  <!-- Technical Drawing Compass (Pergel) -->
+  <g stroke="#18181B" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top hinge & knurled thumb grip -->
+    <rect x="117" y="44" width="6" height="14" rx="2" fill="#18181B"/>
+    <circle cx="120" cy="62" r="7" fill="#FFFFFF" stroke-width="2"/>
+    <circle cx="120" cy="62" r="2.5" fill="#0F766E"/>
+
+    <!-- Left Leg (Steel) -->
+    <line x1="117" y1="67" x2="104" y2="155" stroke-width="3" stroke="#18181B"/>
+    <!-- Needle tip -->
+    <line x1="104" y1="155" x2="102" y2="185" stroke-width="1.5" stroke="#18181B"/>
+
+    <!-- Right Leg (Steel with lead clutch) -->
+    <line x1="123" y1="67" x2="136" y2="155" stroke-width="3" stroke="#18181B"/>
+    <!-- Lead holder attachment -->
+    <rect x="133" y="152" width="7" height="14" rx="1.5" fill="#18181B"/>
+    <!-- Graphite lead tip -->
+    <line x1="136" y1="166" x2="138" y2="185" stroke-width="2" stroke="#18181B"/>
+
+    <!-- Central Micro-adjustment threaded spindle & thumb wheel -->
+    <line x1="108" y1="108" x2="132" y2="108" stroke-width="1.8" stroke="#71717A"/>
+    <circle cx="120" cy="108" r="5" fill="#FFFFFF" stroke-width="1.5"/>
+    <line x1="117" y1="108" x2="123" y2="108" stroke-width="1"/>
+  </g>
+
+  <!-- Left Technical Fineliner Pen 0.3mm -->
+  <g transform="translate(48, 55)">
+    <rect width="12" height="125" rx="3" fill="#FFFFFF" stroke="#18181B" stroke-width="1.8"/>
+    <!-- Color ring identification (0.3mm cyan/emerald) -->
+    <rect x="0" y="32" width="12" height="6" fill="#0F766E"/>
+    <!-- Pocket clip -->
+    <rect x="-3" y="12" width="3" height="30" rx="1" fill="#18181B"/>
+    <!-- Nib & metal sleeve -->
+    <polygon points="2,125 10,125 7,138 5,138" fill="#18181B"/>
+    <line x1="6" y1="138" x2="6" y2="144" stroke="#18181B" stroke-width="1.5"/>
+    <text x="6" y="80" fill="#71717A" font-family="Inter, monospace" font-size="7" font-weight="700" text-anchor="middle" transform="rotate(-90 6 80)">0.30</text>
+  </g>
+
+  <!-- Left Technical Fineliner Pen 0.5mm -->
+  <g transform="translate(70, 55)">
+    <rect width="12" height="125" rx="3" fill="#FFFFFF" stroke="#18181B" stroke-width="1.8"/>
+    <!-- Color ring identification (0.5mm) -->
+    <rect x="0" y="32" width="12" height="6" fill="#18181B"/>
+    <!-- Pocket clip -->
+    <rect x="-3" y="12" width="3" height="30" rx="1" fill="#18181B"/>
+    <!-- Nib -->
+    <polygon points="2,125 10,125 7,138 5,138" fill="#18181B"/>
+    <line x1="6" y1="138" x2="6" y2="144" stroke="#18181B" stroke-width="2"/>
+    <text x="6" y="80" fill="#71717A" font-family="Inter, monospace" font-size="7" font-weight="700" text-anchor="middle" transform="rotate(-90 6 80)">0.50</text>
+  </g>
+
+  <!-- Right Small Spare Lead Tube -->
+  <g transform="translate(160, 65)">
+    <rect width="10" height="70" rx="3" fill="#F4F4F5" stroke="#18181B" stroke-width="1.5"/>
+    <rect width="10" height="12" rx="2" fill="#0F766E"/>
+    <!-- Dark leads inside -->
+    <line x1="4" y1="20" x2="4" y2="60" stroke="#18181B" stroke-width="1"/>
+    <line x1="6" y1="20" x2="6" y2="60" stroke="#18181B" stroke-width="1"/>
+  </g>
+
+  <!-- Right Small Technical Eraser (Mars Plastic) -->
+  <g transform="translate(156, 150)">
+    <rect width="24" height="35" rx="2" fill="#FFFFFF" stroke="#18181B" stroke-width="1.5"/>
+    <rect y="12" width="24" height="23" fill="#18181B"/>
+    <text x="12" y="27" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="6" font-weight="700" text-anchor="middle">DPÜ</text>
+  </g>
+</svg>
