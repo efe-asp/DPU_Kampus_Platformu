@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import {
-  CheckCircle2,
-  Search,
-  MapPin,
   Tag,
   MessageCircle,
   Heart,
   Plus,
-  Sparkles,
-  ChevronDown
+  Utensils,
+  CalendarDays,
+  Megaphone,
+  BellRing,
+  CloudSun,
+  X,
+  Info
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import NewListingModal from '../components/NewListingModal';
@@ -19,25 +21,25 @@ interface OutletContextType {
   onOpenNewListing?: () => void;
 }
 
-const QUICK_PICKUP_POINTS = [
-  { label: 'Bedesten önü', value: 'Bedesten Çarşı' },
-  { label: 'Merkez Kütüphane', value: 'Merkez Kütüphane' },
-  { label: 'Mühendislik', value: 'Mühendislik Kantini' },
-  { label: 'Kütahya Merkez', value: 'Kütahya Merkez' },
-];
-
 function getGreeting(fullName?: string): string {
   const firstName = fullName ? fullName.trim().split(' ')[0] : 'Öğrenci';
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) {
-    return `Günaydın, ${firstName}`;
-  } else if (hour >= 12 && hour < 17) {
-    return `İyi öğlenler, ${firstName}`;
-  } else if (hour >= 17 && hour < 22) {
-    return `Hayırlı akşamlar, ${firstName}`;
-  } else {
-    return `İyi geceler, ${firstName}`;
-  }
+  if (hour >= 5 && hour < 12) return `Günaydın, ${firstName}`;
+  if (hour >= 12 && hour < 17) return `İyi öğlenler, ${firstName}`;
+  if (hour >= 17 && hour < 22) return `Hayırlı akşamlar, ${firstName}`;
+  return `İyi geceler, ${firstName}`;
+}
+
+function getWeatherLabel(): string {
+  const hour = new Date().getHours();
+  if (hour >= 7 && hour < 10) return '7°C Sabah Sisi';
+  if (hour >= 10 && hour < 16) return '9°C Açık';
+  if (hour >= 16 && hour < 20) return '7°C Bulutlu';
+  return '5°C Soğuk';
+}
+
+function getTodayTurkish(): string {
+  return new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 export default function HomePage() {
@@ -45,25 +47,10 @@ export default function HomePage() {
   const navigate = useNavigate();
   const outletContext = useOutletContext<OutletContextType | null>();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [category, setCategory] = useState('');
-  const [pickupPoint, setPickupPoint] = useState('');
   const [localModalOpen, setLocalModalOpen] = useState(false);
+  const [announcementOpen, setAnnouncementOpen] = useState(false);
 
   const greeting = getGreeting(user?.fullName);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery.trim()) params.set('q', searchQuery.trim());
-    if (category) params.set('category', category);
-    if (pickupPoint) params.set('pickup', pickupPoint);
-    navigate(`/pazar${params.toString() ? `?${params.toString()}` : ''}`);
-  };
-
-  const handleQuickPickupClick = (target: string) => {
-    navigate(`/pazar?pickup=${encodeURIComponent(target)}`);
-  };
 
   const handleOpenNewListing = () => {
     if (outletContext?.onOpenNewListing) {
@@ -78,6 +65,49 @@ export default function HomePage() {
     navigate('/pazar');
   };
 
+  const campusCards = [
+    {
+      icon: Utensils,
+      iconColor: 'text-amber-400',
+      iconBg: 'bg-amber-500/20 border-amber-400/30',
+      title: 'Günün Yemekhane Menüsü',
+      detail: 'Mercimek Çorbası, Fırın Tavuk, Pilav',
+      badge: '4.4/5',
+      badgeColor: 'text-amber-300',
+      onClick: () => navigate('/radar'),
+    },
+    {
+      icon: CalendarDays,
+      iconColor: 'text-blue-400',
+      iconBg: 'bg-blue-500/20 border-blue-400/30',
+      title: 'Bugün 3 Etkinlik Var',
+      detail: 'DPÜ Yazılım Topluluğu Atölyesi • 17:30',
+      badge: 'Yeni',
+      badgeColor: 'text-blue-300',
+      onClick: () => navigate('/topluluklar'),
+    },
+    {
+      icon: Megaphone,
+      iconColor: 'text-purple-400',
+      iconBg: 'bg-purple-500/20 border-purple-400/30',
+      title: 'Kampüs Duyuruları',
+      detail: 'Merkez Kütüphane vize haftası 7/24 açık',
+      badge: '1 Yeni',
+      badgeColor: 'text-purple-300',
+      onClick: () => setAnnouncementOpen(true),
+    },
+    {
+      icon: BellRing,
+      iconColor: 'text-emerald-400',
+      iconBg: 'bg-emerald-500/20 border-emerald-400/30',
+      title: 'Güncel Dayanışma',
+      detail: '12 Askıda Ücretsiz • 4 Yeni Kayıp İlanı',
+      badge: 'Canlı',
+      badgeColor: 'text-emerald-300',
+      onClick: () => navigate('/pazar'),
+    },
+  ];
+
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       {/* FULL-WIDTH DARK MIDNIGHT-NAVY HERO PORTAL CARD */}
@@ -89,7 +119,7 @@ export default function HomePage() {
             'radial-gradient(circle at 10% 90%, rgba(15, 118, 110, 0.22) 0%, transparent 45%), radial-gradient(circle at 90% 15%, rgba(30, 58, 138, 0.28) 0%, transparent 50%)',
         }}
       >
-        {/* Subtle geometric Seljuk star and grid texture overlay */}
+        {/* Geometric Seljuk star + grid texture overlay */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.065]"
           style={{
@@ -99,12 +129,17 @@ export default function HomePage() {
         />
 
         <div className="relative z-10 p-6 sm:p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-          {/* LEFT SIDE: Dynamic Greeting, Subtitle, 3-Part Search Bar & Quick Pills */}
+          {/* LEFT SIDE */}
           <div className="lg:col-span-7 flex flex-col justify-center">
-            {/* Verification badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0F766E]/20 border border-[#34D399]/30 rounded-full text-[#34D399] text-xs font-semibold mb-5 w-fit backdrop-blur-sm">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#34D399] shrink-0" />
-              <span>Yalnızca doğrulanmış @ogr.dpu.edu.tr öğrencileri</span>
+
+            {/* Kütahya Weather & Date Pill */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/15 border border-white/15 rounded-full text-white/90 text-xs font-medium mb-5 w-fit backdrop-blur-sm transition-colors cursor-default">
+              <CloudSun className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span className="font-semibold text-amber-200">Kütahya</span>
+              <span className="text-white/50">•</span>
+              <span>{getWeatherLabel()}</span>
+              <span className="text-white/40">•</span>
+              <span className="text-white/60">{getTodayTurkish()}</span>
             </div>
 
             {/* Dynamic Greeting */}
@@ -113,105 +148,45 @@ export default function HomePage() {
             </h1>
 
             {/* Contextual DPÜ Headline & Subtitle */}
-            <p className="text-xl sm:text-2xl font-bold text-white/90 tracking-tight mb-3">
+            <p className="text-xl sm:text-2xl font-bold text-white/90 tracking-tight mb-2">
               Kampüsün güvenli ikinci el pazarı
             </p>
-            <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-xl mb-6">
+            <p className="text-xs sm:text-sm text-white/60 leading-relaxed max-w-xl mb-6">
               Ders kitabı, yurt eşyası, ev arkadaşı ya da proje ekipmanı. DPÜ öğrencileriyle al, sat, takas et; teslimatı kampüste elden yap.
             </p>
 
-            {/* Integrated 3-Part Search Bar */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="bg-white rounded-2xl sm:rounded-full p-2 sm:p-2.5 shadow-2xl border border-white/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 max-w-xl mb-4"
-            >
-              {/* Part 1: Ne arıyorsun? */}
-              <div className="flex-1 px-3 sm:px-4 py-1 sm:border-r sm:border-[#E4E4E7]">
-                <label className="block text-[10px] font-bold text-[#71717A] uppercase tracking-wider leading-none mb-1">
-                  Ne arıyorsun?
-                </label>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Kitap, laptop, ev arkadaşı..."
-                  className="w-full text-xs sm:text-sm text-[#18181B] placeholder:text-[#A1A1AA] bg-transparent outline-none font-medium"
-                />
-              </div>
-
-              {/* Part 2: Kategori */}
-              <div className="px-3 sm:px-4 py-1 sm:border-r sm:border-[#E4E4E7] relative">
-                <label className="block text-[10px] font-bold text-[#71717A] uppercase tracking-wider leading-none mb-1">
-                  Kategori
-                </label>
-                <div className="relative">
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full text-xs sm:text-sm text-[#18181B] bg-transparent outline-none font-medium cursor-pointer pr-5 appearance-none"
+            {/* 2x2 Campus Info Cards Grid */}
+            <div className="grid grid-cols-2 gap-2.5">
+              {campusCards.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <button
+                    key={card.title}
+                    type="button"
+                    onClick={card.onClick}
+                    className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl p-3.5 cursor-pointer transition-all text-left group"
                   >
-                    <option value="">Tüm kategoriler</option>
-                    <option value="Ders Kitabı & Not">Ders Kitabı & Not</option>
-                    <option value="Elektronik">Elektronik</option>
-                    <option value="Ev & Yurt">Ev & Yurt</option>
-                    <option value="Kırtasiye">Kırtasiye</option>
-                    <option value="Askıda Ücretsiz">Askıda Ücretsiz</option>
-                  </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#71717A] absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Part 3: Teslim noktası */}
-              <div className="px-3 sm:px-4 py-1 relative">
-                <label className="block text-[10px] font-bold text-[#71717A] uppercase tracking-wider leading-none mb-1">
-                  Teslim noktası
-                </label>
-                <div className="relative">
-                  <select
-                    value={pickupPoint}
-                    onChange={(e) => setPickupPoint(e.target.value)}
-                    className="w-full text-xs sm:text-sm text-[#18181B] bg-transparent outline-none font-medium cursor-pointer pr-5 appearance-none"
-                  >
-                    <option value="">Her nokta</option>
-                    <option value="Bedesten Çarşı">Bedesten Çarşı</option>
-                    <option value="Merkez Kütüphane">Merkez Kütüphane</option>
-                    <option value="Mühendislik Kantini">Mühendislik Kantini</option>
-                    <option value="KTB MYO">KTB MYO</option>
-                    <option value="KYK Yurtlar">KYK Yurtlar</option>
-                    <option value="Kütahya Merkez">Kütahya Merkez</option>
-                  </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#71717A] absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Search button */}
-              <button
-                type="submit"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-full bg-[#0B192C] hover:bg-[#152840] active:scale-95 text-white flex items-center justify-center shrink-0 transition-all shadow-md self-center cursor-pointer"
-                title="Pazarda Ara"
-              >
-                <Search className="w-4 h-4 text-white" />
-              </button>
-            </form>
-
-            {/* Clickable Pickup Point Pills */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="text-xs text-white/60 font-medium">Teslim noktasına göre:</span>
-              {QUICK_PICKUP_POINTS.map((point) => (
-                <button
-                  key={point.label}
-                  type="button"
-                  onClick={() => handleQuickPickupClick(point.value)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-medium transition-all hover:scale-105 cursor-pointer backdrop-blur-sm"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-[#34D399]" />
-                  <span>{point.label}</span>
-                </button>
-              ))}
+                    <div className="flex items-start gap-2.5 mb-2">
+                      <div className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${card.iconBg}`}>
+                        <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
+                      </div>
+                      <span className={`text-[10px] font-bold mt-1 ${card.badgeColor}`}>
+                        {card.badge}
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-white/90 leading-snug mb-1 group-hover:text-white transition-colors">
+                      {card.title}
+                    </p>
+                    <p className="text-[11px] text-white/50 leading-snug line-clamp-2">
+                      {card.detail}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* RIGHT SIDE: Translucent Dark-Glass Summary Card */}
+          {/* RIGHT SIDE: Translucent Dark-Glass Summary Card (unchanged) */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
             <div className="w-full max-w-sm bg-white/[0.06] backdrop-blur-md rounded-2xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between relative overflow-hidden">
               {/* Header */}
@@ -287,7 +262,82 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Fallback Local New Listing Modal if needed */}
+      {/* Announcement Detail Modal */}
+      {announcementOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setAnnouncementOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl border border-[#E4E4E7] shadow-2xl w-full max-w-md p-6 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setAnnouncementOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center shrink-0">
+                <Megaphone className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-[#18181B]">Kampüs Duyuruları</h2>
+                <p className="text-xs text-[#71717A]">Kütahya Dumlupınar Üniversitesi</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  title: 'Merkez Kütüphane Vize Haftası',
+                  detail: 'Vize haftası boyunca Merkez Kütüphane 7/24 hizmet verecektir. Öğrenci Kimliği ile giriş zorunludur.',
+                  date: '19 Kasım 2026',
+                  badge: 'Yeni',
+                  badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
+                },
+                {
+                  title: 'Mühendislik Kantini Yenileme',
+                  detail: 'Mühendislik kantini 22-24 Kasım tarihleri arasında tadilat nedeniyle kapalı olacaktır.',
+                  date: '18 Kasım 2026',
+                  badge: 'Bilgi',
+                  badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+                },
+                {
+                  title: 'Öğrenci Topluluğu Proje Hibeleri',
+                  detail: 'TÜBİTAK 2209-A başvuruları 30 Kasım\'a kadar alınmaktadır. Danışman hocayla görüşün.',
+                  date: '15 Kasım 2026',
+                  badge: 'Fırsat',
+                  badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                },
+              ].map((ann) => (
+                <div key={ann.title} className="p-3.5 bg-[#F7F7F5] border border-[#E4E4E7] rounded-xl">
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <p className="text-sm font-semibold text-[#18181B] leading-snug">{ann.title}</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${ann.badgeColor}`}>
+                      {ann.badge}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#71717A] leading-relaxed mb-1.5">{ann.detail}</p>
+                  <p className="text-[10px] text-[#A1A1AA]">{ann.date}</p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setAnnouncementOpen(false)}
+              className="mt-4 w-full py-2.5 bg-[#18181B] hover:bg-[#27272A] text-white text-sm font-semibold rounded-xl transition-colors"
+            >
+              Tamam
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback Local New Listing Modal */}
       <NewListingModal
         open={localModalOpen}
         onClose={() => setLocalModalOpen(false)}

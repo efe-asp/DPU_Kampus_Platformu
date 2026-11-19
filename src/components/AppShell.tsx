@@ -15,7 +15,9 @@ import {
   ShieldCheck,
   Menu,
   X,
-  Sparkles
+  Sparkles,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import NewListingModal from './NewListingModal';
@@ -65,9 +67,9 @@ export default function AppShell() {
   const [newListingModalOpen, setNewListingModalOpen] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
   const [inboxOpen, setInboxOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -101,7 +103,7 @@ export default function AppShell() {
     <div className="min-h-screen bg-[#F7F7F5] flex flex-col font-sans">
       {/* 1. TOP STICKY UTILITY BAR (56px) */}
       <header className="sticky top-0 z-40 h-14 bg-white border-b border-[#E4E4E7] px-4 sm:px-6 flex items-center justify-between gap-4">
-        {/* Left: Mobile Toggle & Brand in Topbar for small screens */}
+        {/* Left: Mobile Toggle & Brand */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -120,12 +122,8 @@ export default function AppShell() {
               <BadgeCheck className="w-5 h-5 text-[#0F766E]" />
             </div>
             <div className="hidden sm:block">
-              <span className="text-sm font-bold tracking-tight text-[#18181B] block leading-none">
-                DPÜ Kampüs
-              </span>
-              <span className="text-[10px] text-[#71717A] leading-none mt-0.5 block">
-                Dumlupınar Üniversitesi
-              </span>
+              <span className="text-sm font-bold tracking-tight text-[#18181B] block leading-none">DPÜ Kampüs</span>
+              <span className="text-[10px] text-[#71717A] leading-none mt-0.5 block">Dumlupınar Üniversitesi</span>
             </div>
           </button>
         </div>
@@ -149,9 +147,8 @@ export default function AppShell() {
           </div>
         </div>
 
-        {/* Right: + Yeni Paylaşım, Unread Messages & Student Profile Pill */}
+        {/* Right: Yeni Paylaşım, Inbox, Profile */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Quick "+ Yeni Paylaşım" primary button */}
           <button
             onClick={() => setNewListingModalOpen(true)}
             className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold rounded-xl transition-colors shadow-sm"
@@ -160,7 +157,6 @@ export default function AppShell() {
             <span>Yeni Paylaşım</span>
           </button>
 
-          {/* Unread Messages Indicator */}
           <button
             onClick={() => setInboxOpen(true)}
             className="relative p-2 rounded-xl text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors"
@@ -170,7 +166,6 @@ export default function AppShell() {
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#0F766E] ring-2 ring-white" />
           </button>
 
-          {/* Logged-in Student Profile Pill */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -180,9 +175,7 @@ export default function AppShell() {
                 {user?.fullName ? user.fullName.charAt(0) : 'E'}
               </div>
               <div className="hidden md:flex flex-col text-left">
-                <span className="text-xs font-semibold text-[#18181B] leading-tight">
-                  {user?.fullName || 'Efe Alsaç'}
-                </span>
+                <span className="text-xs font-semibold text-[#18181B] leading-tight">{user?.fullName || 'Efe Alsaç'}</span>
                 <span className="text-[10px] text-[#0F766E] font-medium leading-tight flex items-center gap-0.5">
                   <BadgeCheck className="w-2.5 h-2.5" />
                   Doğrulanmış Öğrenci
@@ -191,16 +184,11 @@ export default function AppShell() {
               <ChevronDown className="w-3.5 h-3.5 text-[#71717A]" />
             </button>
 
-            {/* Profile Dropdown Menu */}
             {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border border-[#E4E4E7] rounded-xl shadow-lg p-2 z-50 animate-fadeIn">
+              <div className="absolute right-0 mt-2 w-64 bg-white border border-[#E4E4E7] rounded-xl shadow-lg p-2 z-50">
                 <div className="p-2.5 border-b border-[#E4E4E7] mb-1">
-                  <p className="text-xs font-bold text-[#18181B] truncate">
-                    {user?.fullName || 'Efe Alsaç'}
-                  </p>
-                  <p className="text-[11px] text-[#71717A] truncate font-mono mt-0.5">
-                    {user?.email || 'efe.alsac@ogr.dpu.edu.tr'}
-                  </p>
+                  <p className="text-xs font-bold text-[#18181B] truncate">{user?.fullName || 'Efe Alsaç'}</p>
+                  <p className="text-[11px] text-[#71717A] truncate font-mono mt-0.5">{user?.email || 'efe.alsac@ogr.dpu.edu.tr'}</p>
                   <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-[#0F766E] bg-[#CCFBF1] px-2 py-0.5 rounded-full border border-[#99F6E4]">
                     <ShieldCheck className="w-3 h-3" />
                     DPÜ Onaylı Hesap
@@ -208,10 +196,7 @@ export default function AppShell() {
                 </div>
 
                 <button
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    navigate('/profil');
-                  }}
+                  onClick={() => { setProfileDropdownOpen(false); navigate('/profil'); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#18181B] hover:bg-[#F4F4F5] rounded-lg transition-colors"
                 >
                   <UserIcon className="w-4 h-4 text-[#71717A]" />
@@ -219,10 +204,7 @@ export default function AppShell() {
                 </button>
 
                 <button
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    setNewListingModalOpen(true);
-                  }}
+                  onClick={() => { setProfileDropdownOpen(false); setNewListingModalOpen(true); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#18181B] hover:bg-[#F4F4F5] rounded-lg transition-colors sm:hidden"
                 >
                   <Plus className="w-4 h-4 text-[#71717A]" />
@@ -244,25 +226,59 @@ export default function AppShell() {
         </div>
       </header>
 
-      {/* 2. BODY LAYOUT: SLIM 240px SIDEBAR + MAIN WORKSPACE */}
+      {/* 2. BODY LAYOUT */}
       <div className="flex-1 flex max-w-[1600px] w-full mx-auto">
-        {/* DESKTOP SIDEBAR (240px) */}
-        <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-[#E4E4E7] p-4 shrink-0 justify-between">
-          <div className="space-y-6">
-            {/* Student verified chip */}
-            <div className="bg-[#F7F7F5] border border-[#E4E4E7] rounded-xl p-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#71717A] block mb-1">
-                Kayıtlı Yerleşke
-              </span>
-              <p className="text-xs font-bold text-[#18181B]">Evliya Çelebi Kampüsü</p>
-              <p className="text-[11px] text-[#71717A] mt-0.5">{user?.faculty || 'Mühendislik Fakültesi'}</p>
-            </div>
+
+        {/* DESKTOP SIDEBAR — collapsible */}
+        <aside
+          className={`hidden lg:flex flex-col bg-white border-r border-[#E4E4E7] p-3 shrink-0 transition-all duration-200 ${
+            isSidebarCollapsed ? 'w-[76px]' : 'w-[250px]'
+          }`}
+        >
+          {/* Top section */}
+          <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
+            {/* Campus chip */}
+            {isSidebarCollapsed ? (
+              /* Collapsed: compact centered pin */
+              <div className="flex justify-center py-1">
+                <div
+                  className="w-10 h-10 rounded-xl bg-[#F7F7F5] border border-[#E4E4E7] flex items-center justify-center cursor-default"
+                  title="Evliya Çelebi Kampüsü"
+                >
+                  <span className="text-[10px] font-bold text-[#18181B]">EÇ</span>
+                </div>
+              </div>
+            ) : (
+              /* Expanded: full campus card */
+              <div className="bg-[#F7F7F5] border border-[#E4E4E7] rounded-xl p-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#71717A] block mb-1">Kayıtlı Yerleşke</span>
+                <p className="text-xs font-bold text-[#18181B]">Evliya Çelebi Kampüsü</p>
+                <p className="text-[11px] text-[#71717A] mt-0.5">{user?.faculty || 'Mühendislik Fakültesi'}</p>
+              </div>
+            )}
 
             {/* Core Nav Modules */}
-            <nav className="space-y-1">
+            <nav className="space-y-0.5">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname.startsWith(item.to);
+
+                if (isSidebarCollapsed) {
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      title={item.label}
+                      className={`flex items-center justify-center w-full h-10 rounded-xl transition-colors ${
+                        isActive
+                          ? 'bg-[#18181B] text-white shadow-sm'
+                          : 'text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5]'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                    </NavLink>
+                  );
+                }
 
                 return (
                   <NavLink
@@ -277,7 +293,7 @@ export default function AppShell() {
                     <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#71717A] group-hover:text-[#18181B]'}`} />
                     <div className="min-w-0">
                       <span className="block truncate leading-tight">{item.label}</span>
-                      <span className={`block text-[10px] truncate leading-tight mt-0.5 ${isActive ? 'text-[#A1A1AA]' : 'text-[#A1A1AA]'}`}>
+                      <span className="block text-[10px] truncate leading-tight mt-0.5 text-[#A1A1AA]">
                         {item.description}
                       </span>
                     </div>
@@ -287,15 +303,36 @@ export default function AppShell() {
             </nav>
           </div>
 
-          {/* Sidebar Footer info */}
-          <div className="border-t border-[#E4E4E7] pt-4 space-y-2">
-            <div className="flex items-center gap-2 text-[11px] text-[#71717A]">
-              <Sparkles className="w-3.5 h-3.5 text-[#0F766E]" />
-              <span>Dumlupınar Öğrenci Ağı</span>
-            </div>
-            <p className="text-[10px] text-[#A1A1AA]">
-              Kütahya Dumlupınar Üniversitesi · DPÜ Kampüs v1.0
-            </p>
+          {/* Bottom: footer info (expanded only) + collapse toggle */}
+          <div className="mt-auto pt-4 border-t border-slate-200/80">
+            {!isSidebarCollapsed && (
+              <div className="mb-3 space-y-1.5">
+                <div className="flex items-center gap-2 text-[11px] text-[#71717A]">
+                  <Sparkles className="w-3.5 h-3.5 text-[#0F766E]" />
+                  <span>Dumlupınar Öğrenci Ağı</span>
+                </div>
+                <p className="text-[10px] text-[#A1A1AA]">Kütahya Dumlupınar Üniversitesi · DPÜ Kampüs v1.0</p>
+              </div>
+            )}
+
+            {/* Toggle button */}
+            {isSidebarCollapsed ? (
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                title="Menüyü Genişlet"
+                className="w-full flex items-center justify-center h-9 rounded-xl text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors"
+              >
+                <PanelLeftOpen className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsSidebarCollapsed(true)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors text-xs font-medium"
+              >
+                <PanelLeftClose className="w-4 h-4 shrink-0" />
+                <span>Menüyü Daralt</span>
+              </button>
+            )}
           </div>
         </aside>
 
@@ -310,10 +347,7 @@ export default function AppShell() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-[#E4E4E7]">
                   <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      navigate('/');
-                    }}
+                    onClick={() => { setMobileMenuOpen(false); navigate('/'); }}
                     className="text-sm font-bold text-[#18181B] text-left cursor-pointer"
                   >
                     DPÜ Kampüs
@@ -327,7 +361,6 @@ export default function AppShell() {
                   {NAV_ITEMS.map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname.startsWith(item.to);
-
                     return (
                       <NavLink
                         key={item.to}
@@ -352,10 +385,7 @@ export default function AppShell() {
 
               <div className="border-t border-[#E4E4E7] pt-4">
                 <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate('/profil');
-                  }}
+                  onClick={() => { setMobileMenuOpen(false); navigate('/profil'); }}
                   className="w-full py-2 px-3 mb-2 bg-[#F7F7F5] border border-[#E4E4E7] text-xs font-semibold text-[#18181B] rounded-xl text-center"
                 >
                   Profilim
