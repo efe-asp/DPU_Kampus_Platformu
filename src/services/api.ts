@@ -105,8 +105,62 @@ const MOCK_RIDESHARES: RideshareDTO[] = [
   { id: 'r4', from: 'Kütahya', to: 'Konya', departureTime: '2026-11-23T06:30:00Z', pickupPoint: 'Kampüs Ana Kapısı', totalSeats: 3, bookedSeats: 0, fuelShare: 200, driver: MOCK_USERS[1] },
 ];
 
+// Mock OTP store (in-memory for demo)
+const MOCK_OTP_STORE: Record<string, string> = {};
+
 export class ApiService {
   // Auth
+  static async sendVerificationCode(email: string): Promise<{ code: string }> {
+    await delay(600);
+    if (!API_BASE) {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      MOCK_OTP_STORE[email.toLowerCase()] = code;
+      return { code };
+    }
+    const res = await fetch(`${API_BASE}/api/auth/send-code`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new Error('Kod gönderilemedi.');
+    return res.json();
+  }
+
+  static async verifyEmailCode(email: string, code: string): Promise<AuthResponse> {
+    await delay(500);
+    if (!API_BASE) {
+      const stored = MOCK_OTP_STORE[email.toLowerCase()];
+      if (!stored || stored !== code.trim()) throw new Error('Doğrulama kodu hatalı. Lütfen tekrar deneyin.');
+      delete MOCK_OTP_STORE[email.toLowerCase()];
+      const existing = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
+      const user = existing || { id: 'u_' + Date.now(), fullName: email.split('@')[0], email, faculty: 'Mühendislik Fakültesi', joinedAt: new Date().toISOString(), verifiedStudent: true };
+      return { token: 'mock_jwt_' + Date.now(), user };
+    }
+    const res = await fetch(`${API_BASE}/api/auth/verify-code`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ email, code }),
+    });
+    if (!res.ok) throw new Error('Doğrulama kodu hatalı.');
+    return res.json();
+  }
+
+  static async resetPassword(email: string, code: string, newPassword: string): Promise<void> {
+    await delay(600);
+    if (!API_BASE) {
+      const stored = MOCK_OTP_STORE[email.toLowerCase()];
+      if (!stored || stored !== code.trim()) throw new Error('Doğrulama kodu hatalı.');
+      delete MOCK_OTP_STORE[email.toLowerCase()];
+      return;
+    }
+    const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ email, code, newPassword }),
+    });
+    if (!res.ok) throw new Error('Şifre güncellenemedi.');
+  }
+
   static async login(req: LoginRequest): Promise<AuthResponse> {
     await delay(400);
     if (!req.email.toLowerCase().endsWith('@ogr.dpu.edu.tr')) throw new Error('Geçersiz e-posta alanı');
