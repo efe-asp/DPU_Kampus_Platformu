@@ -1,126 +1,190 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340" width="100%" height="100%" fill="none">
-  <!-- Warm background plate -->
-  <rect width="520" height="340" rx="16" fill="#F7F7F5"/>
-  <rect x="0.5" y="0.5" width="519" height="339" rx="15.5" stroke="#E4E4E7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="60%" stop-color="#1E3A5F"/>
+      <stop offset="100%" stop-color="#164E63"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D1FAE5"/>
+      <stop offset="100%" stop-color="#A7F3D0"/>
+    </linearGradient>
+    <linearGradient id="building" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <linearGradient id="dome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <radialGradient id="moon" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FEF9C3"/>
+      <stop offset="100%" stop-color="#FDE68A"/>
+    </radialGradient>
+  </defs>
 
-  <!-- Subtle ground horizon -->
-  <line x1="30" y1="260" x2="490" y2="260" stroke="#18181B" stroke-width="2" stroke-linecap="round"/>
-  <line x1="50" y1="266" x2="470" y2="266" stroke="#E4E4E7" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Sky background -->
+  <rect width="480" height="260" fill="url(#sky)"/>
+  <!-- Ground -->
+  <rect y="240" width="480" height="80" fill="url(#ground)"/>
+  <!-- Ground path -->
+  <ellipse cx="240" cy="260" rx="240" ry="30" fill="#6EE7B7" opacity="0.4"/>
 
-  <!-- Campus Trees Left -->
-  <g stroke="#18181B" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M 65 260 L 65 200" stroke-width="2"/>
-    <path d="M 65 200 Q 50 180 55 160 Q 60 140 75 140 Q 90 140 95 160 Q 100 180 85 200 Z" fill="#E4E4E7"/>
-    <path d="M 65 205 L 55 190"/>
-    <path d="M 65 195 L 75 180"/>
+  <!-- Stars -->
+  <circle cx="30" cy="20" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="80" cy="45" r="1" fill="white" opacity="0.6"/>
+  <circle cx="140" cy="15" r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="200" cy="35" r="1" fill="white" opacity="0.5"/>
+  <circle cx="310" cy="20" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="380" cy="40" r="1" fill="white" opacity="0.6"/>
+  <circle cx="420" cy="18" r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="460" cy="55" r="1" fill="white" opacity="0.5"/>
+  <circle cx="55" cy="70" r="1" fill="white" opacity="0.4"/>
+  <circle cx="440" cy="75" r="1" fill="white" opacity="0.4"/>
 
-    <path d="M 100 260 L 100 215" stroke-width="2"/>
-    <path d="M 100 215 Q 88 200 92 185 Q 98 170 110 170 Q 122 170 126 185 Q 130 200 118 215 Z" fill="#F4F4F5"/>
+  <!-- Moon -->
+  <circle cx="420" cy="45" r="22" fill="url(#moon)" opacity="0.9"/>
+  <circle cx="430" cy="38" r="17" fill="#1E3A5F" opacity="0.9"/>
+
+  <!-- Left tree -->
+  <rect x="38" y="195" width="8" height="55" fill="#78350F"/>
+  <ellipse cx="42" cy="180" rx="22" ry="30" fill="#064E3B"/>
+  <ellipse cx="42" cy="168" rx="16" ry="22" fill="#065F46"/>
+  <ellipse cx="42" cy="158" rx="10" ry="14" fill="#10B981"/>
+
+  <!-- Right tree -->
+  <rect x="434" y="195" width="8" height="55" fill="#78350F"/>
+  <ellipse cx="438" cy="180" rx="22" ry="30" fill="#064E3B"/>
+  <ellipse cx="438" cy="168" rx="16" ry="22" fill="#065F46"/>
+  <ellipse cx="438" cy="158" rx="10" ry="14" fill="#10B981"/>
+
+  <!-- Center trees (smaller) -->
+  <rect x="100" y="210" width="6" height="40" fill="#92400E"/>
+  <ellipse cx="103" cy="198" rx="16" ry="22" fill="#065F46"/>
+  <ellipse cx="103" cy="188" rx="11" ry="15" fill="#059669"/>
+
+  <rect x="368" y="210" width="6" height="40" fill="#92400E"/>
+  <ellipse cx="371" cy="198" rx="16" ry="22" fill="#065F46"/>
+  <ellipse cx="371" cy="188" rx="11" ry="15" fill="#059669"/>
+
+  <!-- Main university building body -->
+  <rect x="120" y="120" width="240" height="140" fill="url(#building)" rx="2"/>
+  <!-- Building darker base -->
+  <rect x="120" y="210" width="240" height="50" fill="#B45309"/>
+
+  <!-- Center wing (taller) -->
+  <rect x="175" y="90" width="130" height="170" fill="#FBBF24" rx="2"/>
+  <rect x="175" y="210" width="130" height="50" fill="#D97706"/>
+
+  <!-- Building top trim -->
+  <rect x="120" y="118" width="240" height="6" fill="#F59E0B"/>
+  <rect x="175" y="88" width="130" height="6" fill="#F59E0B"/>
+
+  <!-- Dome base -->
+  <rect x="208" y="58" width="64" height="36" fill="#059669" rx="1"/>
+  <!-- Dome arch -->
+  <ellipse cx="240" cy="60" rx="32" ry="38" fill="url(#dome)"/>
+  <!-- Dome highlight -->
+  <ellipse cx="232" cy="52" rx="10" ry="14" fill="#34D399" opacity="0.4"/>
+  <!-- Dome tip -->
+  <circle cx="240" cy="24" r="5" fill="#FCD34D"/>
+  <rect x="238" y="10" width="4" height="18" fill="#FCD34D"/>
+
+  <!-- Building columns -->
+  <rect x="195" y="150" width="8" height="110" fill="#FDE68A" opacity="0.5" rx="2"/>
+  <rect x="224" y="150" width="8" height="110" fill="#FDE68A" opacity="0.5" rx="2"/>
+  <rect x="248" y="150" width="8" height="110" fill="#FDE68A" opacity="0.5" rx="2"/>
+  <rect x="277" y="150" width="8" height="110" fill="#FDE68A" opacity="0.5" rx="2"/>
+
+  <!-- Main door arch -->
+  <rect x="216" y="210" width="48" height="50" fill="#78350F" rx="1"/>
+  <ellipse cx="240" cy="210" rx="24" ry="10" fill="#92400E"/>
+  <!-- Door detail -->
+  <rect x="220" y="218" width="18" height="38" fill="#451A03" rx="1"/>
+  <rect x="242" y="218" width="18" height="38" fill="#451A03" rx="1"/>
+  <circle cx="238" cy="237" r="2" fill="#FCD34D"/>
+  <circle cx="246" cy="237" r="2" fill="#FCD34D"/>
+
+  <!-- Arched windows - upper level -->
+  <g>
+    <rect x="135" y="135" width="28" height="36" fill="#FEF3C7" rx="1"/>
+    <ellipse cx="149" cy="135" rx="14" ry="7" fill="#FEF3C7"/>
+    <rect x="135" y="135" width="28" height="36" fill="#F59E0B" opacity="0.15"/>
+    <!-- window glow -->
+    <rect x="136" y="136" width="12" height="32" fill="#FCD34D" opacity="0.3"/>
+    <rect x="150" y="136" width="12" height="32" fill="#FCD34D" opacity="0.3"/>
+  </g>
+  <g>
+    <rect x="317" y="135" width="28" height="36" fill="#FEF3C7" rx="1"/>
+    <ellipse cx="331" cy="135" rx="14" ry="7" fill="#FEF3C7"/>
+    <rect x="317" y="135" width="28" height="36" fill="#F59E0B" opacity="0.15"/>
+    <rect x="318" y="136" width="12" height="32" fill="#FCD34D" opacity="0.3"/>
+    <rect x="332" y="136" width="12" height="32" fill="#FCD34D" opacity="0.3"/>
   </g>
 
-  <!-- DPÜ Evliya Çelebi Kampüsü Central Gateway & Faculty Building -->
-  <!-- Main building block -->
-  <rect x="140" y="110" width="240" height="150" fill="#FFFFFF" stroke="#18181B" stroke-width="2"/>
-  
-  <!-- Central pediment / gable (Triangular fronton) -->
-  <polygon points="260,65 170,110 350,110" fill="#FFFFFF" stroke="#18181B" stroke-width="2" stroke-linejoin="round"/>
-  
-  <!-- Pediment decorative clock / emblem -->
-  <circle cx="260" cy="92" r="10" fill="#F7F7F5" stroke="#18181B" stroke-width="1.5"/>
-  <circle cx="260" cy="92" r="2.5" fill="#0F766E"/>
-  <line x1="260" y1="87" x2="260" y2="92" stroke="#18181B" stroke-width="1.2"/>
-  <line x1="260" y1="92" x2="264" y2="92" stroke="#18181B" stroke-width="1.2"/>
-
-  <!-- Classical Columns / Pillars -->
-  <g fill="#F7F7F5" stroke="#18181B" stroke-width="1.5">
-    <rect x="180" y="110" width="14" height="150"/>
-    <rect x="220" y="110" width="14" height="150"/>
-    <rect x="286" y="110" width="14" height="150"/>
-    <rect x="326" y="110" width="14" height="150"/>
+  <!-- Center wing windows -->
+  <g>
+    <rect x="192" y="105" width="26" height="35" fill="#A7F3D0" rx="1"/>
+    <ellipse cx="205" cy="105" rx="13" ry="6" fill="#A7F3D0"/>
+    <rect x="193" y="106" width="10" height="30" fill="#34D399" opacity="0.3"/>
+    <rect x="207" y="106" width="10" height="30" fill="#34D399" opacity="0.3"/>
+  </g>
+  <g>
+    <rect x="262" y="105" width="26" height="35" fill="#A7F3D0" rx="1"/>
+    <ellipse cx="275" cy="105" rx="13" ry="6" fill="#A7F3D0"/>
+    <rect x="263" y="106" width="10" height="30" fill="#34D399" opacity="0.3"/>
+    <rect x="277" y="106" width="10" height="30" fill="#34D399" opacity="0.3"/>
   </g>
 
-  <!-- Classical Arched Entrance Portal -->
-  <path d="M 242 260 L 242 195 Q 260 180 278 195 L 278 260 Z" fill="#18181B"/>
-  <path d="M 247 260 L 247 200 Q 260 188 273 200 L 273 260 Z" fill="#0F766E" opacity="0.3"/>
-  <line x1="260" y1="187" x2="260" y2="260" stroke="#FFFFFF" stroke-width="1"/>
+  <!-- Flag on dome -->
+  <rect x="240" y="6" width="20" height="13" fill="#DC2626" rx="1"/>
+  <rect x="240" y="6" width="20" height="6" fill="#DC2626"/>
+  <circle cx="250" cy="12" r="4" fill="white" opacity="0.9"/>
 
-  <!-- Upper Windows with Arches -->
-  <g fill="#F4F4F5" stroke="#18181B" stroke-width="1.5">
-    <path d="M 152 145 L 152 135 Q 160 128 168 135 L 168 145 Z"/>
-    <line x1="160" y1="130" x2="160" y2="145"/>
-    <line x1="152" y1="138" x2="168" y2="138"/>
+  <!-- Path / walkway -->
+  <polygon points="195,260 285,260 300,310 180,310" fill="#FDE68A" opacity="0.5"/>
+  <polygon points="210,260 270,260 275,310 205,310" fill="#FEF3C7" opacity="0.4"/>
 
-    <path d="M 352 145 L 352 135 Q 360 128 368 135 L 368 145 Z"/>
-    <line x1="360" y1="130" x2="360" y2="145"/>
-    <line x1="352" y1="138" x2="368" y2="138"/>
-
-    <!-- Middle floor windows -->
-    <rect x="152" y="170" width="16" height="22" rx="2"/>
-    <line x1="160" y1="170" x2="160" y2="192"/>
-    <line x1="152" y1="181" x2="168" y2="181"/>
-
-    <rect x="352" y="170" width="16" height="22" rx="2"/>
-    <line x1="360" y1="170" x2="360" y2="192"/>
-    <line x1="352" y1="181" x2="368" y2="181"/>
-
-    <rect x="152" y="210" width="16" height="22" rx="2"/>
-    <rect x="352" y="210" width="16" height="22" rx="2"/>
+  <!-- Student silhouette 1 (left) -->
+  <g transform="translate(145, 235)">
+    <circle cx="0" cy="-28" r="7" fill="white"/>
+    <rect x="-6" y="-20" width="12" height="20" fill="#10B981" rx="2"/>
+    <rect x="-10" y="-18" width="5" height="15" fill="#10B981" rx="2"/>
+    <rect x="5" y="-18" width="5" height="15" fill="#10B981" rx="2"/>
+    <rect x="-5" y="0" width="4" height="18" fill="#1E293B" rx="1"/>
+    <rect x="1" y="0" width="4" height="18" fill="#1E293B" rx="1"/>
+    <!-- Bag -->
+    <rect x="5" y="-18" width="10" height="14" fill="#0F766E" rx="2"/>
   </g>
 
-  <!-- Left & Right Wing Extensions -->
-  <rect x="90" y="150" width="50" height="110" fill="#FFFFFF" stroke="#18181B" stroke-width="1.5"/>
-  <line x1="90" y1="150" x2="140" y2="150" stroke="#18181B" stroke-width="1.5"/>
-  <rect x="102" y="170" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
-  <rect x="102" y="205" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
-
-  <rect x="380" y="150" width="50" height="110" fill="#FFFFFF" stroke="#18181B" stroke-width="1.5"/>
-  <rect x="404" y="170" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
-  <rect x="404" y="205" width="14" height="20" rx="1.5" fill="#F4F4F5" stroke="#18181B" stroke-width="1.2"/>
-
-  <!-- Right Tree & Lamppost -->
-  <g stroke="#18181B" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M 445 260 L 445 205" stroke-width="2"/>
-    <path d="M 445 205 Q 430 185 435 165 Q 442 145 455 145 Q 470 145 475 165 Q 480 185 465 205 Z" fill="#E4E4E7"/>
-    <line x1="445" y1="210" x2="438" y2="198"/>
-    <line x1="445" y1="202" x2="453" y2="192"/>
-
-    <!-- Campus light post -->
-    <path d="M 400 260 L 400 220 Q 400 215 395 215 L 393 215"/>
-    <circle cx="393" cy="217" r="2.5" fill="#0F766E"/>
+  <!-- Student silhouette 2 (right) -->
+  <g transform="translate(335, 235)">
+    <circle cx="0" cy="-28" r="7" fill="white"/>
+    <rect x="-6" y="-20" width="12" height="20" fill="#6366F1" rx="2"/>
+    <rect x="-10" y="-18" width="5" height="15" fill="#6366F1" rx="2"/>
+    <rect x="5" y="-18" width="5" height="15" fill="#6366F1" rx="2"/>
+    <rect x="-5" y="0" width="4" height="18" fill="#1E293B" rx="1"/>
+    <rect x="1" y="0" width="4" height="18" fill="#1E293B" rx="1"/>
+    <!-- Book -->
+    <rect x="-15" y="-10" width="12" height="16" fill="#F59E0B" rx="1"/>
   </g>
 
-  <!-- Editorial Walking Student Silhouettes -->
-  <!-- Student 1 (carrying backpack on back) -->
-  <g fill="#18181B" stroke="#18181B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Head -->
-    <circle cx="195" cy="235" r="4.5"/>
-    <!-- Torso -->
-    <line x1="195" y1="240" x2="195" y2="252" stroke-width="2"/>
-    <!-- Backpack -->
-    <rect x="189" y="242" width="4" height="7" rx="1.5" fill="#0F766E"/>
-    <!-- Legs walking -->
-    <line x1="195" y1="252" x2="192" y2="260" stroke-width="1.8"/>
-    <line x1="195" y1="252" x2="199" y2="260" stroke-width="1.8"/>
-  </g>
+  <!-- Bench left -->
+  <rect x="68" y="248" width="40" height="4" fill="#D97706" rx="1"/>
+  <rect x="72" y="252" width="4" height="10" fill="#B45309"/>
+  <rect x="100" y="252" width="4" height="10" fill="#B45309"/>
 
-  <!-- Student 2 (carrying folder/laptop) -->
-  <g fill="#18181B" stroke="#18181B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Head -->
-    <circle cx="310" cy="236" r="4.5"/>
-    <!-- Torso -->
-    <line x1="310" y1="241" x2="310" y2="252" stroke-width="2"/>
-    <!-- Folder under arm -->
-    <rect x="312" y="244" width="5" height="6" rx="1" fill="#FFFFFF" stroke="#18181B" stroke-width="1"/>
-    <!-- Legs -->
-    <line x1="310" y1="252" x2="307" y2="260" stroke-width="1.8"/>
-    <line x1="310" y1="252" x2="314" y2="260" stroke-width="1.8"/>
-  </g>
+  <!-- Bench right -->
+  <rect x="372" y="248" width="40" height="4" fill="#D97706" rx="1"/>
+  <rect x="376" y="252" width="4" height="10" fill="#B45309"/>
+  <rect x="404" y="252" width="4" height="10" fill="#B45309"/>
 
-  <!-- Campus Emerald Badge at Top Corner -->
-  <g transform="translate(390, 20)">
-    <rect width="110" height="26" rx="13" fill="#FFFFFF" stroke="#E4E4E7"/>
-    <circle cx="16" cy="13" r="5" fill="#0F766E"/>
-    <path d="M 14 13 L 15.5 14.5 L 18 11.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="28" y="17" fill="#18181B" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" letter-spacing="-0.2">DPÜ Kampüs</text>
-  </g>
+  <!-- DPÜ text on building -->
+  <text x="240" y="195" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#78350F" opacity="0.6">D P Ü</text>
+
+  <!-- Subtle lamp posts -->
+  <rect x="165" y="220" width="3" height="40" fill="#94A3B8"/>
+  <circle cx="166.5" cy="218" r="5" fill="#FCD34D" opacity="0.9"/>
+  <rect x="312" y="220" width="3" height="40" fill="#94A3B8"/>
+  <circle cx="313.5" cy="218" r="5" fill="#FCD34D" opacity="0.9"/>
 </svg>

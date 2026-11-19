@@ -114,22 +114,33 @@ export default function AuthPage() {
     <div className="min-h-screen bg-[#F2F3F5] flex flex-col justify-center items-center p-4 sm:p-6 lg:p-10 font-sans">
       <div className="w-full max-w-5xl bg-white border border-[#E4E4E7] rounded-2xl shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
         
-        {/* LEFT COLUMN: Campus Life Editorial Showcase */}
-        <div className="lg:col-span-7 bg-[#F7F7F5] border-b lg:border-b-0 lg:border-r border-[#E4E4E7] p-8 sm:p-10 lg:p-12 flex flex-col justify-between">
-          <div>
+        {/* LEFT COLUMN: Rich Navy-to-Emerald Campus Canvas */}
+        <div
+          className="lg:col-span-7 border-b lg:border-b-0 lg:border-r border-transparent p-8 sm:p-10 lg:p-12 flex flex-col justify-between relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #0F172A 0%, #0F3460 50%, #115E59 100%)' }}
+        >
+          {/* Architectural grid texture overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.06] pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='white' stroke-width='0.5'/%3E%3C/svg%3E")`,
+              backgroundSize: '40px 40px',
+            }}
+          />
+          <div className="relative z-10">
             {/* Header branding */}
             <div className="flex items-center gap-2.5 mb-6">
-              <div className="w-9 h-9 rounded-xl bg-[#18181B] flex items-center justify-center text-white shadow-sm">
-                <BadgeCheck className="w-5 h-5 text-[#0F766E]" />
+              <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-sm border border-white/20">
+                <BadgeCheck className="w-5 h-5 text-[#34D399]" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-[#18181B]">DPÜ Kampüs</span>
-              <span className="text-[10px] font-semibold text-[#0F766E] bg-[#CCFBF1] px-2 py-0.5 rounded-full border border-[#99F6E4]">
+              <span className="text-xl font-bold tracking-tight text-white">DPÜ Kampüs</span>
+              <span className="text-[10px] font-semibold text-[#34D399] bg-[#34D399]/15 px-2 py-0.5 rounded-full border border-[#34D399]/30">
                 Doğrulanmış Ağ
               </span>
             </div>
 
-            {/* Campus Architectural Illustration */}
-            <div className="w-full rounded-xl overflow-hidden border border-[#E4E4E7] bg-white mb-6 p-2 flex items-center justify-center">
+            {/* Campus Illustration */}
+            <div className="w-full rounded-xl overflow-hidden mb-6 flex items-center justify-center bg-white/5 border border-white/10 p-2">
               <img
                 src="/images/auth-campus.svg"
                 alt="DPÜ Evliya Çelebi Kampüsü"
@@ -138,39 +149,51 @@ export default function AuthPage() {
             </div>
 
             {/* Subtitle */}
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#18181B] mb-2 leading-snug">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-2 leading-snug">
               Kütahya Dumlupınar Üniversitesi Öğrenci Platformu
             </h1>
-            <p className="text-sm text-[#71717A] leading-relaxed mb-8">
+            <p className="text-sm text-white/60 leading-relaxed mb-5">
               Dumlupınar Üniversitesi öğrencilerine özel doğrulanmış pazar, topluluk ve kampüs dayanışma ağı
             </p>
 
-            {/* 3 Minimal Hairline Rows */}
-            <div className="space-y-3 border-t border-[#E4E4E7] pt-5">
-              <div className="flex items-center gap-3 text-sm text-[#18181B]">
-                <div className="w-7 h-7 rounded-lg bg-white border border-[#E4E4E7] flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-4 h-4 text-[#0F766E]" />
+            {/* Live campus pulse row */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-6 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/15">
+              <span className="text-xs font-semibold text-[#34D399]">1.450+</span>
+              <span className="text-xs text-white/70">Doğrulanmış DPÜ Öğrencisi</span>
+              <span className="text-white/30 text-xs">•</span>
+              <span className="text-xs font-semibold text-[#34D399]">380+</span>
+              <span className="text-xs text-white/70">Aktif İlan</span>
+              <span className="text-white/30 text-xs">•</span>
+              <span className="text-xs font-semibold text-[#34D399]">%100</span>
+              <span className="text-xs text-white/70">Kampüs İçi Güven</span>
+            </div>
+
+            {/* 3 glass feature cards */}
+            <div className="space-y-2.5 border-t border-white/15 pt-5">
+              <div className="flex items-center gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/15">
+                <div className="w-7 h-7 rounded-lg bg-[#34D399]/20 border border-[#34D399]/30 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4 text-[#34D399]" />
                 </div>
-                <span className="font-medium">Yalnızca @ogr.dpu.edu.tr Onaylı Öğrenciler</span>
+                <span className="text-sm font-medium text-white/90">Yalnızca @ogr.dpu.edu.tr Onaylı Öğrenciler</span>
               </div>
 
-              <div className="flex items-center gap-3 text-sm text-[#18181B]">
-                <div className="w-7 h-7 rounded-lg bg-white border border-[#E4E4E7] flex items-center justify-center shrink-0">
-                  <QrCode className="w-4 h-4 text-[#0F766E]" />
+              <div className="flex items-center gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/15">
+                <div className="w-7 h-7 rounded-lg bg-[#34D399]/20 border border-[#34D399]/30 flex items-center justify-center shrink-0">
+                  <QrCode className="w-4 h-4 text-[#34D399]" />
                 </div>
-                <span className="font-medium">Kampüs İçi QR Kodlu Güvenli Teslimat</span>
+                <span className="text-sm font-medium text-white/90">Kampüs İçi QR Kodlu Güvenli Teslimat</span>
               </div>
 
-              <div className="flex items-center gap-3 text-sm text-[#18181B]">
-                <div className="w-7 h-7 rounded-lg bg-white border border-[#E4E4E7] flex items-center justify-center shrink-0">
-                  <BookOpen className="w-4 h-4 text-[#0F766E]" />
+              <div className="flex items-center gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/15">
+                <div className="w-7 h-7 rounded-lg bg-[#34D399]/20 border border-[#34D399]/30 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4 h-4 text-[#34D399]" />
                 </div>
-                <span className="font-medium">Topluluklar, Kayıp Eşya ve Ders Notu Arşivi</span>
+                <span className="text-sm font-medium text-white/90">Topluluklar, Kayıp Eşya ve Ders Notu Arşivi</span>
               </div>
             </div>
           </div>
 
-          <div className="pt-8 text-xs text-[#71717A] flex items-center justify-between border-t border-[#E4E4E7] mt-8">
+          <div className="relative z-10 pt-6 text-xs text-white/40 flex items-center justify-between border-t border-white/15 mt-6">
             <span>© 2026 DPÜ Kampüs</span>
             <span>Evliya Çelebi Yerleşkesi · Kütahya</span>
           </div>

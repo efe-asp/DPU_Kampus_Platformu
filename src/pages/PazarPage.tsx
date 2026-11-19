@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapPin, Tag, ChevronDown, Plus, ArrowLeft, QrCode, MessageCircle, Package, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MapPin, Tag, ChevronDown, Plus, ArrowLeft, QrCode, MessageCircle, Package, CheckCircle, Heart, Utensils, CalendarDays, AlertTriangle } from 'lucide-react';
 import { ApiService } from '../services/api';
 import type { ListingDTO, Category, PickupPoint } from '../types';
 import ChatDrawer from '../components/ChatDrawer';
@@ -17,12 +18,42 @@ const conditionColors: Record<string, string> = {
   'Orta': 'bg-[#F7F7F5] text-[#71717A] border-[#E4E4E7]',
 };
 
+const FACULTY_COLORS: Record<string, string> = {
+  'Mühendislik Fakültesi': 'bg-blue-50 text-blue-700',
+  'İİBF': 'bg-amber-50 text-amber-700',
+  'Fen-Edebiyat Fakültesi': 'bg-emerald-50 text-emerald-700',
+  'Kütahya Teknik Bilimler MYO': 'bg-purple-50 text-purple-700',
+  'Eğitim Fakültesi': 'bg-orange-50 text-orange-700',
+  'Güzel Sanatlar Fakültesi': 'bg-pink-50 text-pink-700',
+};
+
+function formatRelativeTime(createdAt: string): string {
+  const diff = Date.now() - new Date(createdAt).getTime();
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return 'Az önce';
+  if (h < 24) return `${h} saat önce`;
+  const d = Math.floor(diff / 86400000);
+  if (d < 7) return `${d} gün önce`;
+  return new Date(createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+}
+
 // ── Product Card ─────────────────────────────────────────────────────────────
-function ProductCard({ listing, onClick }: { listing: ListingDTO; onClick: () => void }) {
+function ProductCard({
+  listing,
+  onClick,
+  isFaved,
+  onToggleFave,
+}: {
+  listing: ListingDTO;
+  onClick: () => void;
+  isFaved: boolean;
+  onToggleFave: (id: string) => void;
+}) {
+  const facultyClass = FACULTY_COLORS[listing.seller.faculty] || 'bg-zinc-50 text-zinc-600';
   return (
     <button
       onClick={onClick}
-      className="bg-white border border-[#E4E4E7] rounded-xl overflow-hidden text-left hover:border-[#A1A1AA] hover:shadow-sm transition-all group"
+      className="bg-white border border-[#E4E4E7] rounded-xl overflow-hidden text-left hover:border-[#A1A1AA] shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 group"
     >
       {/* Image area */}
       <div className="relative bg-[#F7F7F5] aspect-square flex items-center justify-center p-4 overflow-hidden">
@@ -37,10 +68,21 @@ function ProductCard({ listing, onClick }: { listing: ListingDTO; onClick: () =>
           </span>
         )}
         {!listing.isFree && (
-          <span className={`absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-medium border rounded-full ${conditionColors[listing.condition] || conditionColors['Orta']}`}>
+          <span className={`absolute top-2 left-2 px-1.5 py-0.5 text-[10px] font-medium border rounded-full ${conditionColors[listing.condition] || conditionColors['Orta']}`}>
             {listing.condition}
           </span>
         )}
+        {/* Floating heart / favorite button */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleFave(listing.id); }}
+          className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors"
+        >
+          <Heart
+            size={14}
+            className={isFaved ? 'fill-red-500 text-red-500' : 'text-[#71717A]'}
+          />
+        </button>
       </div>
 
       {/* Content */}
@@ -48,19 +90,24 @@ function ProductCard({ listing, onClick }: { listing: ListingDTO; onClick: () =>
         <p className="text-sm font-semibold text-[#18181B] leading-snug line-clamp-2 mb-1.5">
           {listing.title}
         </p>
-        <p className="text-base font-bold text-[#18181B] mb-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        <p className="text-lg font-black text-[#18181B] mb-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
           {listing.isFree ? (
             <span className="text-[#0F766E]">Ücretsiz</span>
           ) : (
             `${listing.price.toLocaleString('tr-TR')} ₺`
           )}
         </p>
-        <div className="flex items-center gap-1.5 text-[#71717A]">
+        <div className="flex items-center gap-1.5 text-[#71717A] mb-1.5">
           <MapPin size={11} />
           <span className="text-[11px] truncate">{listing.pickupPoint}</span>
         </div>
-        <div className="flex items-center gap-1.5 mt-1 text-[#71717A]">
-          <span className="text-[11px] truncate">{listing.seller.fullName} · {listing.seller.faculty.split(' ')[0]}</span>
+        <div className="flex items-center justify-between gap-1.5 mt-1">
+          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${facultyClass}`}>
+            {listing.seller.faculty.split(' ')[0]}
+          </span>
+          <span className="text-[10px] text-[#A1A1AA]" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {formatRelativeTime(listing.createdAt)}
+          </span>
         </div>
       </div>
     </button>
@@ -174,6 +221,7 @@ function ListingDetail({
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function PazarPage() {
+  const navigate = useNavigate();
   const [listings, setListings] = useState<ListingDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('Tümü');
@@ -183,6 +231,15 @@ export default function PazarPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [newListingOpen, setNewListingOpen] = useState(false);
+  const [favoritedIds, setFavoritedIds] = useState<Set<string>>(new Set());
+
+  const toggleFave = (id: string) => {
+    setFavoritedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
@@ -227,17 +284,53 @@ export default function PazarPage() {
   return (
     <div className="p-6">
       {/* Page header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#18181B]">Kampüs Pazarı</h1>
-          <p className="text-sm text-[#71717A] mt-0.5">İkinci el eşya ve askıda ücretsiz paylaşımlar</p>
-        </div>
+      <div className="mb-5">
+        <h1 className="text-xl font-bold tracking-tight text-[#18181B]">Kampüs Pazarı</h1>
+        <p className="text-sm text-[#71717A] mt-0.5">İkinci el eşya ve askıda ücretsiz paylaşımlar</p>
+      </div>
+
+      {/* Kampüs Nabzı — Live Campus Pulse Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         <button
-          onClick={() => setNewListingOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#18181B] text-white text-sm font-medium rounded-lg hover:bg-[#27272A] transition-colors"
+          onClick={() => navigate('/radar')}
+          className="flex items-center gap-3 p-3 bg-white border border-[#E4E4E7] rounded-xl text-left hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 border-l-4 border-l-amber-400"
         >
-          <Plus size={15} />
-          Yeni Paylaşım
+          <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center shrink-0">
+            <Utensils size={16} className="text-amber-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-[#18181B] truncate">Fırında Tavuk But</p>
+            <p className="text-[11px] text-[#71717A] flex items-center gap-1 mt-0.5">
+              <span className="font-medium text-amber-600">4.3/5</span>
+              <span>· Bugün Yemekhanede</span>
+            </p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => navigate('/topluluklar')}
+          className="flex items-center gap-3 p-3 bg-white border border-[#E4E4E7] rounded-xl text-left hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 border-l-4 border-l-blue-400"
+        >
+          <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+            <CalendarDays size={16} className="text-blue-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-[#18181B] truncate">DPÜ Yazılım Topluluğu Hackathon</p>
+            <p className="text-[11px] text-[#71717A] mt-0.5">Bugün 17:30 · 38/50 Kontenjan</p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => navigate('/kayip-buluntu')}
+          className="flex items-center gap-3 p-3 bg-white border border-[#E4E4E7] rounded-xl text-left hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 border-l-4 border-l-emerald-400"
+        >
+          <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+            <AlertTriangle size={16} className="text-emerald-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-[#18181B] truncate">Öğrenci Kimliği Bulundu</p>
+            <p className="text-[11px] text-[#71717A] mt-0.5">Merkez Kütüphane · 2 saat önce</p>
+          </div>
         </button>
       </div>
 
@@ -316,6 +409,8 @@ export default function PazarPage() {
               key={listing.id}
               listing={listing}
               onClick={() => setSelectedListing(listing)}
+              isFaved={favoritedIds.has(listing.id)}
+              onToggleFave={toggleFave}
             />
           ))}
         </div>

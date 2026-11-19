@@ -1,78 +1,98 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="100%" height="100%" fill="none">
-  <!-- Hard-shell Plastic Case Base -->
-  <rect x="25" y="30" width="190" height="180" rx="14" fill="#FFFFFF" stroke="#18181B" stroke-width="2.5"/>
-  <rect x="31" y="36" width="178" height="168" rx="10" fill="#F7F7F5" stroke="#E4E4E7" stroke-width="1.2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 180" width="160" height="180">
+  <defs>
+    <linearGradient id="bg-cs" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EFF6FF"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+    <linearGradient id="case-cs" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#BFDBFE"/>
+      <stop offset="100%" stop-color="#93C5FD"/>
+    </linearGradient>
+  </defs>
+  <!-- Studio backdrop -->
+  <rect width="160" height="180" fill="url(#bg-cs)" rx="16"/>
+  <!-- Shadow -->
+  <ellipse cx="80" cy="162" rx="52" ry="8" fill="#93C5FD" opacity="0.35"/>
 
-  <!-- Velvet Instrument Mold Grooves -->
-  <g fill="#E4E4E7" stroke="#18181B" stroke-width="1.2">
-    <!-- Center Compass (Pergel) Groove -->
-    <path d="M 120 48 L 105 175 L 115 175 L 120 120 L 125 175 L 135 175 Z" opacity="0.4"/>
+  <!-- Drawing case (open) -->
+  <rect x="20" y="80" width="120" height="78" fill="url(#case-cs)" rx="8"/>
+  <!-- Case inner -->
+  <rect x="24" y="84" width="112" height="70" fill="#EFF6FF" rx="6"/>
+  <!-- Case spine -->
+  <rect x="20" y="80" width="120" height="6" fill="#60A5FA" rx="4"/>
+  <!-- Case latch -->
+  <rect x="72" y="81" width="16" height="4" fill="#3B82F6" rx="2"/>
+
+  <!-- Compass (silver/steel) -->
+  <g transform="translate(45, 50)">
+    <!-- Left leg -->
+    <rect x="-2" y="0" width="4" height="50" fill="#94A3B8" rx="1" transform="rotate(-18, 0, 0)"/>
+    <!-- Right leg -->
+    <rect x="-2" y="0" width="4" height="50" fill="#CBD5E1" rx="1" transform="rotate(18, 0, 0)"/>
+    <!-- Hinge top -->
+    <circle cx="0" cy="0" r="6" fill="#64748B"/>
+    <circle cx="0" cy="0" r="3" fill="#94A3B8"/>
+    <!-- Needle tip left -->
+    <polygon points="-5,46 -1,46 -3,56" fill="#1E293B" transform="rotate(-18, 0, 0)"/>
+    <!-- Pencil tip right -->
+    <polygon points="-2,46 2,46 0,54" fill="#F59E0B" transform="rotate(18, 0, 0)"/>
+    <!-- Adjustment wheel -->
+    <rect x="4" y="18" width="12" height="6" fill="#94A3B8" rx="3" transform="rotate(-2)"/>
   </g>
 
-  <!-- Technical Drawing Compass (Pergel) -->
-  <g stroke="#18181B" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Top hinge & knurled thumb grip -->
-    <rect x="117" y="44" width="6" height="14" rx="2" fill="#18181B"/>
-    <circle cx="120" cy="62" r="7" fill="#FFFFFF" stroke-width="2"/>
-    <circle cx="120" cy="62" r="2.5" fill="#0F766E"/>
-
-    <!-- Left Leg (Steel) -->
-    <line x1="117" y1="67" x2="104" y2="155" stroke-width="3" stroke="#18181B"/>
-    <!-- Needle tip -->
-    <line x1="104" y1="155" x2="102" y2="185" stroke-width="1.5" stroke="#18181B"/>
-
-    <!-- Right Leg (Steel with lead clutch) -->
-    <line x1="123" y1="67" x2="136" y2="155" stroke-width="3" stroke="#18181B"/>
-    <!-- Lead holder attachment -->
-    <rect x="133" y="152" width="7" height="14" rx="1.5" fill="#18181B"/>
-    <!-- Graphite lead tip -->
-    <line x1="136" y1="166" x2="138" y2="185" stroke-width="2" stroke="#18181B"/>
-
-    <!-- Central Micro-adjustment threaded spindle & thumb wheel -->
-    <line x1="108" y1="108" x2="132" y2="108" stroke-width="1.8" stroke="#71717A"/>
-    <circle cx="120" cy="108" r="5" fill="#FFFFFF" stroke-width="1.5"/>
-    <line x1="117" y1="108" x2="123" y2="108" stroke-width="1"/>
+  <!-- Technical pen (emerald cap) -->
+  <g transform="translate(95, 25) rotate(-30)">
+    <rect x="-4" y="-10" width="8" height="85" fill="#F8FAFC" rx="3"/>
+    <rect x="-4" y="-10" width="8" height="22" fill="#10B981" rx="3"/>
+    <rect x="-4" y="10" width="8" height="4" fill="#059669"/>
+    <circle cx="0" cy="-14" r="5" fill="#10B981"/>
+    <!-- Clip -->
+    <rect x="2" y="-10" width="2" height="40" fill="#D1FAE5" rx="1"/>
+    <!-- Tip -->
+    <rect x="-2" y="72" width="4" height="8" fill="#94A3B8" rx="1"/>
+    <polygon points="-2,80 2,80 0,88" fill="#64748B"/>
   </g>
 
-  <!-- Left Technical Fineliner Pen 0.3mm -->
-  <g transform="translate(48, 55)">
-    <rect width="12" height="125" rx="3" fill="#FFFFFF" stroke="#18181B" stroke-width="1.8"/>
-    <!-- Color ring identification (0.3mm cyan/emerald) -->
-    <rect x="0" y="32" width="12" height="6" fill="#0F766E"/>
-    <!-- Pocket clip -->
-    <rect x="-3" y="12" width="3" height="30" rx="1" fill="#18181B"/>
-    <!-- Nib & metal sleeve -->
-    <polygon points="2,125 10,125 7,138 5,138" fill="#18181B"/>
-    <line x1="6" y1="138" x2="6" y2="144" stroke="#18181B" stroke-width="1.5"/>
-    <text x="6" y="80" fill="#71717A" font-family="Inter, monospace" font-size="7" font-weight="700" text-anchor="middle" transform="rotate(-90 6 80)">0.30</text>
-  </g>
+  <!-- Ruler (transparent blue) -->
+  <rect x="22" y="96" width="116" height="20" fill="#BFDBFE" rx="3" opacity="0.7"/>
+  <!-- Ruler markings -->
+  <line x1="30" y1="96" x2="30" y2="104" stroke="#3B82F6" stroke-width="1" opacity="0.6"/>
+  <line x1="40" y1="96" x2="40" y2="108" stroke="#3B82F6" stroke-width="1.5" opacity="0.6"/>
+  <line x1="50" y1="96" x2="50" y2="104" stroke="#3B82F6" stroke-width="1" opacity="0.6"/>
+  <line x1="60" y1="96" x2="60" y2="108" stroke="#3B82F6" stroke-width="1.5" opacity="0.6"/>
+  <line x1="70" y1="96" x2="70" y2="104" stroke="#3B82F6" stroke-width="1" opacity="0.6"/>
+  <line x1="80" y1="96" x2="80" y2="108" stroke="#3B82F6" stroke-width="1.5" opacity="0.6"/>
+  <line x1="90" y1="96" x2="90" y2="104" stroke="#3B82F6" stroke-width="1" opacity="0.6"/>
+  <line x1="100" y1="96" x2="100" y2="108" stroke="#3B82F6" stroke-width="1.5" opacity="0.6"/>
+  <line x1="110" y1="96" x2="110" y2="104" stroke="#3B82F6" stroke-width="1" opacity="0.6"/>
+  <line x1="120" y1="96" x2="120" y2="108" stroke="#3B82F6" stroke-width="1.5" opacity="0.6"/>
+  <text x="40" y="113" font-size="6" fill="#1D4ED8" opacity="0.7">10</text>
+  <text x="80" y="113" font-size="6" fill="#1D4ED8" opacity="0.7">50</text>
+  <text x="118" y="113" font-size="6" fill="#1D4ED8" opacity="0.7">90</text>
 
-  <!-- Left Technical Fineliner Pen 0.5mm -->
-  <g transform="translate(70, 55)">
-    <rect width="12" height="125" rx="3" fill="#FFFFFF" stroke="#18181B" stroke-width="1.8"/>
-    <!-- Color ring identification (0.5mm) -->
-    <rect x="0" y="32" width="12" height="6" fill="#18181B"/>
-    <!-- Pocket clip -->
-    <rect x="-3" y="12" width="3" height="30" rx="1" fill="#18181B"/>
-    <!-- Nib -->
-    <polygon points="2,125 10,125 7,138 5,138" fill="#18181B"/>
-    <line x1="6" y1="138" x2="6" y2="144" stroke="#18181B" stroke-width="2"/>
-    <text x="6" y="80" fill="#71717A" font-family="Inter, monospace" font-size="7" font-weight="700" text-anchor="middle" transform="rotate(-90 6 80)">0.50</text>
-  </g>
+  <!-- Eraser -->
+  <rect x="28" y="122" width="36" height="14" fill="#FDA4AF" rx="3"/>
+  <rect x="28" y="122" width="36" height="5" fill="#FB7185" rx="2"/>
+  <text x="46" y="133" text-anchor="middle" font-size="6" fill="#9F1239" opacity="0.7">STAEDTLER</text>
 
-  <!-- Right Small Spare Lead Tube -->
-  <g transform="translate(160, 65)">
-    <rect width="10" height="70" rx="3" fill="#F4F4F5" stroke="#18181B" stroke-width="1.5"/>
-    <rect width="10" height="12" rx="2" fill="#0F766E"/>
-    <!-- Dark leads inside -->
-    <line x1="4" y1="20" x2="4" y2="60" stroke="#18181B" stroke-width="1"/>
-    <line x1="6" y1="20" x2="6" y2="60" stroke="#18181B" stroke-width="1"/>
-  </g>
+  <!-- Protractor (quarter circle) -->
+  <path d="M 80 155 L 80 125 A 30 30 0 0 1 110 155 Z" fill="#FEF9C3" stroke="#FCD34D" stroke-width="1" opacity="0.8"/>
+  <path d="M 80 155 L 80 130 A 25 25 0 0 1 105 155 Z" fill="none" stroke="#FDE68A" stroke-width="1"/>
+  <!-- Degree marks -->
+  <text x="88" y="145" font-size="6" fill="#D97706" opacity="0.7">45&#176;</text>
+  <text x="97" y="158" font-size="6" fill="#D97706" opacity="0.7">90&#176;</text>
 
-  <!-- Right Small Technical Eraser (Mars Plastic) -->
-  <g transform="translate(156, 150)">
-    <rect width="24" height="35" rx="2" fill="#FFFFFF" stroke="#18181B" stroke-width="1.5"/>
-    <rect y="12" width="24" height="23" fill="#18181B"/>
-    <text x="12" y="27" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="6" font-weight="700" text-anchor="middle">DPÜ</text>
-  </g>
+  <!-- Pencils in case -->
+  <rect x="90" y="122" width="6" height="30" fill="#FCD34D" rx="2"/>
+  <rect x="98" y="122" width="6" height="30" fill="#F87171" rx="2"/>
+  <rect x="106" y="122" width="6" height="30" fill="#34D399" rx="2"/>
+  <polygon points="90,152 96,152 93,160" fill="#F5CBA7"/>
+  <polygon points="98,152 104,152 101,160" fill="#F5CBA7"/>
+  <polygon points="106,152 112,152 109,160" fill="#F5CBA7"/>
+
+  <!-- Drawing pins / details -->
+  <circle cx="120" cy="130" r="4" fill="#94A3B8"/>
+  <circle cx="120" cy="130" r="2" fill="#CBD5E1"/>
+  <circle cx="130" cy="135" r="4" fill="#94A3B8"/>
+  <circle cx="130" cy="135" r="2" fill="#CBD5E1"/>
 </svg>
