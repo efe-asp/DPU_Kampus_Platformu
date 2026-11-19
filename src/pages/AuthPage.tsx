@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, QrCode, BookOpen, BadgeCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { BadgeCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { ApiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -114,7 +114,7 @@ export default function AuthPage() {
     <div className="h-screen w-screen overflow-hidden bg-[#F2F3F5] flex items-center justify-center font-sans select-none">
       <div className="h-full w-full bg-white grid grid-cols-1 lg:grid-cols-12 overflow-hidden shadow-none">
         
-        {/* LEFT COLUMN: Campus Drone Aerial Video with Calibrated Scrim */}
+        {/* LEFT COLUMN: Campus Drone Aerial Video with Official Emblem and Metrics */}
         <div className="hidden lg:flex lg:col-span-7 h-full relative overflow-hidden flex-col justify-between p-8 xl:p-12">
           {/* Full-bleed background video */}
           <video
@@ -136,25 +136,20 @@ export default function AuthPage() {
             aria-hidden="true"
           />
 
-          {/* Top Brand & Verification Pill */}
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/20">
-                <BadgeCheck className="w-5 h-5 text-[#34D399]" />
-              </div>
-              <div>
-                <span className="text-xl font-black tracking-tight text-white block leading-none">
-                  DPÜ Kampüs
-                </span>
-                <span className="text-[10px] text-white/70 font-medium tracking-wide">
-                  Dumlupınar Üniversitesi
-                </span>
-              </div>
-            </div>
-
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 backdrop-blur-md rounded-full border border-emerald-400/30 text-emerald-300 text-xs font-semibold shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Doğrulanmış Ağ</span>
+          {/* Top Brand Area (Official DPÜ Emblem Logo - No green pill badge) */}
+          <div className="relative z-10 flex items-center gap-3">
+            <img
+              src="/images/dpu-logo.png"
+              alt="Kütahya Dumlupınar Üniversitesi Amblemi"
+              className="w-11 h-11 rounded-full object-cover bg-white p-0.5 ring-2 ring-white/30 shadow-md"
+            />
+            <div>
+              <span className="text-xl font-black tracking-tight text-white block leading-none">
+                DPÜ Kampüs
+              </span>
+              <span className="text-[11px] text-white/75 font-medium tracking-wide">
+                Dumlupınar Üniversitesi
+              </span>
             </div>
           </div>
 
@@ -163,15 +158,6 @@ export default function AuthPage() {
 
           {/* Bottom-Aligned Content Stack */}
           <div className="relative z-10 space-y-4">
-            {/* Live Campus Pulse Row */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-black/40 backdrop-blur-md rounded-full border border-white/15 text-white/90 text-xs shadow-sm">
-              <span className="font-semibold text-emerald-300">1.450+ Doğrulanmış Öğrenci</span>
-              <span className="text-white/40">•</span>
-              <span className="font-semibold text-emerald-300">380+ Aktif İlan</span>
-              <span className="text-white/40">•</span>
-              <span className="text-white/80">%100 Kampüs İçi Güven</span>
-            </div>
-
             {/* Headings */}
             <div className="space-y-1">
               <h1 className="text-2xl sm:text-3xl xl:text-4xl font-black tracking-tight text-white leading-tight">
@@ -182,24 +168,24 @@ export default function AuthPage() {
               </p>
             </div>
 
-            {/* Compact 3-Pill Horizontal Trust Strip */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg border border-white/15 text-white/95 text-xs font-medium">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>@ogr.dpu.edu.tr Onaylı</span>
+            {/* Sleek Translucent Glass Campus Metrics Strip */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-5 py-3.5 grid grid-cols-3 divide-x divide-white/15 shadow-lg">
+              <div className="pr-4">
+                <div className="text-xl sm:text-2xl font-black text-white tabular-nums tracking-tight">1.450+</div>
+                <div className="text-[11px] sm:text-xs text-white/75 font-medium mt-0.5">Aktif DPÜ Öğrencisi</div>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg border border-white/15 text-white/95 text-xs font-medium">
-                <QrCode className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>QR Kodlu Teslimat</span>
+              <div className="px-4">
+                <div className="text-xl sm:text-2xl font-black text-white tabular-nums tracking-tight">380+</div>
+                <div className="text-[11px] sm:text-xs text-white/75 font-medium mt-0.5">İlan, Not & Etkinlik</div>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg border border-white/15 text-white/95 text-xs font-medium">
-                <BookOpen className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Ders Notu & Topluluklar</span>
+              <div className="pl-4">
+                <div className="text-lg sm:text-xl font-bold text-white tracking-tight leading-tight">Evliya Çelebi</div>
+                <div className="text-[11px] sm:text-xs text-white/75 font-medium mt-0.5">& Germiyan Yerleşkesi</div>
               </div>
             </div>
 
             {/* Footer Metadata */}
-            <div className="pt-2 text-[11px] text-white/50 flex items-center justify-between border-t border-white/15">
+            <div className="pt-2 text-[11px] text-white/50 flex items-center justify-between border-t border-white/10">
               <span>© 2026 DPÜ Kampüs</span>
               <span>Evliya Çelebi Yerleşkesi · Kütahya</span>
             </div>
@@ -212,10 +198,12 @@ export default function AuthPage() {
             
             {/* Mobile Header (only visible on small screens where left video column is hidden) */}
             <div className="lg:hidden flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#0F766E]/10 flex items-center justify-center">
-                  <BadgeCheck className="w-4 h-4 text-[#0F766E]" />
-                </div>
+              <div className="flex items-center gap-2.5">
+                <img
+                  src="/images/dpu-logo.png"
+                  alt="DPÜ Logo"
+                  className="w-8 h-8 rounded-full object-cover bg-white ring-1 ring-zinc-200"
+                />
                 <span className="text-base font-bold text-[#18181B]">DPÜ Kampüs</span>
               </div>
               <span className="text-[10px] font-semibold text-[#0F766E] bg-[#0F766E]/10 px-2 py-0.5 rounded-full">

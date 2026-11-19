@@ -115,12 +115,14 @@ export default function AppShell() {
 
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-left group cursor-pointer"
+            className="flex items-center gap-2.5 text-left group cursor-pointer"
             title="DPÜ Kampüs Ana Sayfa"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#18181B] text-white flex items-center justify-center font-bold text-sm shadow-sm group-hover:bg-[#27272A] transition-colors">
-              <BadgeCheck className="w-5 h-5 text-[#0F766E]" />
-            </div>
+            <img
+              src="/images/dpu-logo.png"
+              alt="DPÜ Amblem"
+              className="w-9 h-9 rounded-full object-cover bg-white ring-2 ring-zinc-200/80 shadow-xs group-hover:ring-[#18181B] transition-all"
+            />
             <div className="hidden sm:block">
               <span className="text-sm font-bold tracking-tight text-[#18181B] block leading-none">DPÜ Kampüs</span>
               <span className="text-[10px] text-[#71717A] leading-none mt-0.5 block">Dumlupınar Üniversitesi</span>
