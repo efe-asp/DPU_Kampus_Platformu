@@ -112,8 +112,9 @@ export default function AppShell() {
           </button>
 
           <button
-            onClick={() => navigate('/pazar')}
-            className="flex items-center gap-2 text-left group"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-left group cursor-pointer"
+            title="DPÜ Kampüs Ana Sayfa"
           >
             <div className="w-8 h-8 rounded-lg bg-[#18181B] text-white flex items-center justify-center font-bold text-sm shadow-sm group-hover:bg-[#27272A] transition-colors">
               <BadgeCheck className="w-5 h-5 text-[#0F766E]" />
@@ -138,6 +139,11 @@ export default function AppShell() {
               placeholder="İlan, ders notu, topluluk veya kayıp eşya ara..."
               value={globalSearch}
               onChange={(e) => setGlobalSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && globalSearch.trim()) {
+                  navigate(`/pazar?q=${encodeURIComponent(globalSearch.trim())}`);
+                }
+              }}
               className="w-full pl-9 pr-4 py-2 bg-[#F7F7F5] border border-[#E4E4E7] rounded-xl text-xs sm:text-sm text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#18181B] focus:bg-white transition-all"
             />
           </div>
@@ -303,7 +309,15 @@ export default function AppShell() {
             <div className="relative bg-white w-64 h-full p-4 flex flex-col justify-between border-r border-[#E4E4E7] z-50">
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-[#E4E4E7]">
-                  <span className="text-sm font-bold text-[#18181B]">DPÜ Kampüs</span>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate('/');
+                    }}
+                    className="text-sm font-bold text-[#18181B] text-left cursor-pointer"
+                  >
+                    DPÜ Kampüs
+                  </button>
                   <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#71717A]">
                     <X className="w-4 h-4" />
                   </button>
@@ -359,7 +373,7 @@ export default function AppShell() {
 
         {/* MAIN OUTLET CONTAINER */}
         <main className="flex-1 pb-16 lg:pb-8 min-w-0">
-          <Outlet />
+          <Outlet context={{ onOpenNewListing: () => setNewListingModalOpen(true) }} />
         </main>
       </div>
 

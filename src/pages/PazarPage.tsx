@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MapPin, Tag, ChevronDown, Plus, ArrowLeft, QrCode, MessageCircle, Package, CheckCircle, Heart, Utensils, CalendarDays, AlertTriangle } from 'lucide-react';
 import { ApiService } from '../services/api';
 import type { ListingDTO, Category, PickupPoint } from '../types';
@@ -222,16 +222,29 @@ function ListingDetail({
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function PazarPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [listings, setListings] = useState<ListingDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('Tümü');
-  const [activePickup, setActivePickup] = useState('');
+  const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || 'Tümü');
+  const [activePickup, setActivePickup] = useState(searchParams.get('pickup') || '');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [activeSort, setActiveSort] = useState('En Yeni');
   const [selectedListing, setSelectedListing] = useState<ListingDTO | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [newListingOpen, setNewListingOpen] = useState(false);
   const [favoritedIds, setFavoritedIds] = useState<Set<string>>(new Set());
+
+  // Sync state when URL search params change
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    const cat = searchParams.get('category') || 'Tümü';
+    const pick = searchParams.get('pickup') || '';
+    setSearchQuery(q);
+    setActiveCategory(cat);
+    setActivePickup(pick);
+  }, [searchParams]);
 
   const toggleFave = (id: string) => {
     setFavoritedIds(prev => {
@@ -244,16 +257,28 @@ export default function PazarPage() {
   const fetchListings = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await ApiService.getListings(
+      let data = await ApiService.getListings(
         activeCategory === 'Tümü' ? undefined : activeCategory,
         activePickup && activePickup !== 'Tümü' ? activePickup : undefined,
         activeSort !== 'En Yeni' ? activeSort : undefined,
       );
+
+      // Apply search query filter if present
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        data = data.filter(item =>
+          item.title.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          item.category.toLowerCase().includes(q) ||
+          item.pickupPoint.toLowerCase().includes(q)
+        );
+      }
+
       setListings(data);
     } finally {
       setLoading(false);
     }
-  }, [activeCategory, activePickup, activeSort]);
+  }, [activeCategory, activePickup, activeSort, searchQuery]);
 
   useEffect(() => { fetchListings(); }, [fetchListings]);
 
@@ -339,8 +364,16 @@ export default function PazarPage() {
         {CATEGORIES.map(cat => (
           <button
             key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors whitespace-nowrap ${
+            onClick={() => {
+              setActiveCategory(cat);
+              setSearchParams(prev => {
+                const next = new URLSearchParams(prev);
+                if (cat === 'Tümü') next.delete('category');
+                else next.set('category', cat);
+                return next;
+              });
+            }}
+            className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors whitespace-nowrap cursor-pointer ${
               activeCategory === cat
                 ? cat === 'Askıda Ücretsiz'
                   ? 'bg-[#0F766E] text-white border-[#0F766E]'
@@ -354,11 +387,20 @@ export default function PazarPage() {
       </div>
 
       {/* Filters row */}
-      <div className="flex items-center gap-3 mb-6 flex-wrap">
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="relative">
           <select
             value={activePickup}
-            onChange={e => setActivePickup(e.target.value)}
+            onChange={e => {
+              const val = e.target.value;
+              setActivePickup(val);
+              setSearchParams(prev => {
+                const next = new URLSearchParams(prev);
+                if (!val || val === 'Tümü') next.delete('pickup');
+                else next.set('pickup', val);
+                return next;
+              });
+            }}
             className="appearance-none pl-3 pr-8 py-2 text-sm bg-white border border-[#E4E4E7] rounded-lg text-[#18181B] focus:outline-none focus:ring-1 focus:ring-[#18181B] cursor-pointer"
           >
             <option value="">Teslim Noktası</option>
@@ -382,6 +424,40 @@ export default function PazarPage() {
           {listings.length} ilan
         </span>
       </div>
+
+      {/* Active filters badge row */}
+      {(searchQuery || activePickup || activeCategory !== 'Tümü') && (
+        <div className="flex flex-wrap items-center gap-2 mb-6 p-2.5 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs text-[#18181B] animate-fadeIn">
+          <span className="font-semibold text-emerald-900">Uygulanan Filtreler:</span>
+          {searchQuery && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-emerald-200 rounded-lg font-medium shadow-xs text-emerald-950">
+              Arama: <strong>"{searchQuery}"</strong>
+            </span>
+          )}
+          {activeCategory !== 'Tümü' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-emerald-200 rounded-lg font-medium shadow-xs text-emerald-950">
+              Kategori: <strong>{activeCategory}</strong>
+            </span>
+          )}
+          {activePickup && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-emerald-200 rounded-lg font-medium shadow-xs text-emerald-950">
+              Teslim: <strong>{activePickup}</strong>
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveCategory('Tümü');
+              setActivePickup('');
+              setSearchQuery('');
+              setSearchParams({});
+            }}
+            className="ml-auto text-xs font-bold text-[#0F766E] hover:text-[#115E59] underline cursor-pointer"
+          >
+            Filtreleri Temizle
+          </button>
+        </div>
+      )}
 
       {/* Grid */}
       {loading ? (
