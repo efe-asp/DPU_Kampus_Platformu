@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "cd DpuKampus.Server && dotnet run"
   },
   "dependencies": {
     "framer-motion": "^14.14.0",

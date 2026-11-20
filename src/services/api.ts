@@ -2,7 +2,9 @@ import type {
   LoginRequest, RegisterRequest, AuthResponse, User,
   ListingDTO, CreateListingRequest, ClubDTO, EventDTO,
   LostFoundDTO, NoteDTO, ProjectTeamDTO, CafeteriaMenuDTO,
-  RideshareDTO, MessageDTO, ConversationDTO
+  RideshareDTO, MessageDTO, ConversationDTO,
+  ForumTopic, ForumCommentDTO, ForumPostDTO,
+  CreateForumPostRequest, CreateForumCommentRequest
 } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
@@ -103,6 +105,148 @@ const MOCK_RIDESHARES: RideshareDTO[] = [
   { id: 'r2', from: 'Kütahya', to: 'Bursa', departureTime: '2026-11-22T08:00:00Z', pickupPoint: 'Bedesten Önü', totalSeats: 3, bookedSeats: 1, fuelShare: 150, driver: MOCK_USERS[4] },
   { id: 'r3', from: 'Kütahya', to: 'Afyon', departureTime: '2026-11-21T09:00:00Z', pickupPoint: 'Merkez Kütüphane', totalSeats: 4, bookedSeats: 3, fuelShare: 60, driver: MOCK_USERS[3] },
   { id: 'r4', from: 'Kütahya', to: 'Konya', departureTime: '2026-11-23T06:30:00Z', pickupPoint: 'Kampüs Ana Kapısı', totalSeats: 3, bookedSeats: 0, fuelShare: 200, driver: MOCK_USERS[1] },
+];
+
+let MOCK_FORUM_POSTS: ForumPostDTO[] = [
+  {
+    id: 'fp1',
+    author: MOCK_USERS[0],
+    content: 'Mühendislik Fakültesi Diferansiyel Denklemler vizesi için Merkez Kütüphane 2. katta çalışan var mı? 2024 ve 2025 çıkmış soru çözümleri için çalışma grubu oluşturduk, katılmak isteyen gelebilir.',
+    topic: '#VizeFinal',
+    isAnonymous: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(), // 25 mins ago
+    likeCount: 14,
+    hasLiked: false,
+    commentCount: 3,
+    viewCount: 186,
+    comments: [
+      {
+        id: 'fc1',
+        postId: 'fp1',
+        author: MOCK_USERS[1],
+        content: 'Ben de oradayım, Laplace dönüşümleri kısmında takıldım. Yan masadayım, gelebilir miyim?',
+        createdAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
+      },
+      {
+        id: 'fc2',
+        postId: 'fp1',
+        author: MOCK_USERS[2],
+        content: 'Hangi hocanın soruları var elinizde? Salih hoca çıkmışları çok soruyor bu dönem.',
+        createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      },
+      {
+        id: 'fc3',
+        postId: 'fp1',
+        author: MOCK_USERS[0],
+        content: 'Hem Salih hoca hem de Ahmet hocanın son 3 yıllık vize-final arşivi var, notlar kısmına da yükledim.',
+        createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      },
+    ],
+  },
+  {
+    id: 'fp2',
+    author: MOCK_USERS[3],
+    content: 'Bugünkü Bedesten yemekhanesindeki fırın tavuk, mercimek çorbası ve revani menüsü gerçekten 10/10 idi. Sıra saat 12:20 civarında biraz uzundu ama turnikeler hızlı aktı. Aşçılarımızın ellerine sağlık.',
+    topic: '#Yemekhane',
+    isAnonymous: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    likeCount: 38,
+    hasLiked: true,
+    commentCount: 2,
+    viewCount: 342,
+    comments: [
+      {
+        id: 'fc4',
+        postId: 'fp2',
+        author: MOCK_USERS[4],
+        content: 'Kesinlikle katılıyorum, özellikle çorbanın kıvamı harikaydı.',
+        createdAt: new Date(Date.now() - 1000 * 60 * 80).toISOString(),
+      },
+      {
+        id: 'fc5',
+        postId: 'fp2',
+        author: MOCK_USERS[1],
+        content: 'Akşam menüsünde de aynı tat olur umarım, dersten çıkınca gideceğim.',
+        createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+      },
+    ],
+  },
+  {
+    id: 'fp3',
+    author: {
+      id: 'anon_u',
+      fullName: 'Anonim Öğrenci',
+      email: 'anon@ogr.dpu.edu.tr',
+      faculty: 'İktisadi ve İdari Bilimler Fakültesi',
+      joinedAt: '2024-09-01',
+      verifiedStudent: true,
+    },
+    content: 'Evliya Çelebi kampüsünden Zafer Meydanı ve Vazo yönüne giden 7 numaralı belediye otobüsünün 17:30 kalkış saati 17:20 olarak güncellenmiş. Durakta soğukta beklemeyin diye yazıyorum, panoda asılı saatler güncellenmemiş henüz.',
+    topic: '#KütahyaUlaşım',
+    isAnonymous: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 hours ago
+    likeCount: 52,
+    hasLiked: false,
+    commentCount: 1,
+    viewCount: 512,
+    comments: [
+      {
+        id: 'fc6',
+        postId: 'fp3',
+        author: MOCK_USERS[2],
+        content: 'Çok teşekkürler, az kalsın eski saate güvenip dersi kaçırıyordum!',
+        createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
+      },
+    ],
+  },
+  {
+    id: 'fp4',
+    author: MOCK_USERS[1],
+    content: 'DPÜ Yazılım Topluluğu olarak bu cuma günü saat 17:30\'da Mühendislik A-201 amfisinde React & .NET ile uçtan uca proje geliştirme atölyesi yapacağız. Sıfırdan başlayanlar da katılabilir, kendi bilgisayarınızı getirmeniz yeterli!',
+    topic: '#KampüsHayatı',
+    isAnonymous: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 7).toISOString(), // 7 hours ago
+    likeCount: 29,
+    hasLiked: false,
+    commentCount: 0,
+    viewCount: 290,
+    comments: [],
+  },
+  {
+    id: 'fp5',
+    author: {
+      id: 'anon_eng',
+      fullName: 'Anonim Öğrenci',
+      email: 'anon2@ogr.dpu.edu.tr',
+      faculty: 'Mühendislik Fakültesi',
+      joinedAt: '2023-09-01',
+      verifiedStudent: true,
+    },
+    content: 'Merkez Kütüphanede masa prizlerinin bazıları çalışmıyor, özellikle B blok arka sıralar. Dün bildirim formu doldurdum ama sınav haftası öncesi teknik servisin hızlıca el atması gerekiyor. Destek için rektörlük masasına da yazalım.',
+    topic: '#SoruCevap',
+    isAnonymous: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    likeCount: 41,
+    hasLiked: false,
+    commentCount: 2,
+    viewCount: 405,
+    comments: [
+      {
+        id: 'fc7',
+        postId: 'fp5',
+        author: MOCK_USERS[0],
+        content: 'Öğrenci konseyi üzerinden de talep ilettik, yarın sabah bakacaklarını söylediler.',
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString(),
+      },
+      {
+        id: 'fc8',
+        postId: 'fp5',
+        author: MOCK_USERS[3],
+        content: 'A blok 3. kat prizleri sağlam, oraya geçebilirsiniz geçici olarak.',
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+      },
+    ],
+  },
 ];
 
 export class ApiService {
@@ -323,5 +467,189 @@ export class ApiService {
   static async sendMessage(receiverId: string, content: string, listingId?: string): Promise<MessageDTO> {
     await delay(300);
     return { id: 'm_' + Date.now(), senderId: 'u1', receiverId, content, sentAt: new Date().toISOString(), read: false, listingId };
+  }
+
+  // ── Forum (Twitter/X Style Microblogging & Discussion) ──
+  static async getForumPosts(topic?: string, sort: 'latest' | 'popular' = 'latest'): Promise<ForumPostDTO[]> {
+    try {
+      const url = new URL(`${API_BASE}/api/forum`, window.location.origin);
+      if (topic && topic !== 'Tümü') url.searchParams.set('topic', topic);
+      if (sort) url.searchParams.set('sort', sort);
+      const res = await fetch(url.toString(), { headers: getAuthHeaders() });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // Fallback to in-memory mock store
+    }
+
+    await delay(350);
+    let posts = [...MOCK_FORUM_POSTS];
+    if (topic && topic !== 'Tümü') {
+      posts = posts.filter(p => p.topic === topic);
+    }
+
+    if (sort === 'popular') {
+      posts.sort((a, b) => (b.likeCount * 3 + b.commentCount * 2 + b.viewCount * 0.1) - (a.likeCount * 3 + a.commentCount * 2 + a.viewCount * 0.1));
+    } else {
+      posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    return posts.map(p => ({ ...p, comments: [...(p.comments || [])] }));
+  }
+
+  static async getForumPost(id: string): Promise<ForumPostDTO | null> {
+    try {
+      const res = await fetch(`${API_BASE}/api/forum/${id}`, { headers: getAuthHeaders() });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+
+    await delay(200);
+    const post = MOCK_FORUM_POSTS.find(p => p.id === id);
+    return post ? { ...post, comments: [...(post.comments || [])] } : null;
+  }
+
+  static async createForumPost(req: CreateForumPostRequest): Promise<ForumPostDTO> {
+    const user = getStoredUser() || MOCK_USERS[0];
+    try {
+      const res = await fetch(`${API_BASE}/api/forum`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(req),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+
+    await delay(400);
+    const newPost: ForumPostDTO = {
+      id: 'fp_' + Date.now(),
+      author: req.isAnonymous ? {
+        id: 'anon_' + Date.now(),
+        fullName: `Anonim ${user.faculty || 'Öğrenci'}`,
+        email: 'anon@ogr.dpu.edu.tr',
+        faculty: user.faculty || 'Dumlupınar Üniversitesi',
+        joinedAt: new Date().toISOString(),
+        verifiedStudent: true,
+      } : user,
+      content: req.content.trim(),
+      topic: req.topic,
+      isAnonymous: req.isAnonymous,
+      createdAt: new Date().toISOString(),
+      likeCount: 0,
+      hasLiked: false,
+      commentCount: 0,
+      viewCount: 1,
+      comments: [],
+    };
+
+    MOCK_FORUM_POSTS.unshift(newPost);
+    return { ...newPost };
+  }
+
+  static async toggleForumLike(id: string): Promise<{ liked: boolean; count: number }> {
+    try {
+      const res = await fetch(`${API_BASE}/api/forum/${id}/like`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+
+    await delay(150);
+    const post = MOCK_FORUM_POSTS.find(p => p.id === id);
+    if (!post) return { liked: false, count: 0 };
+
+    post.hasLiked = !post.hasLiked;
+    if (post.hasLiked) {
+      post.likeCount += 1;
+    } else {
+      post.likeCount = Math.max(0, post.likeCount - 1);
+    }
+
+    return { liked: !!post.hasLiked, count: post.likeCount };
+  }
+
+  static async incrementForumView(id: string): Promise<{ viewCount: number }> {
+    try {
+      const res = await fetch(`${API_BASE}/api/forum/${id}/view`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+
+    const post = MOCK_FORUM_POSTS.find(p => p.id === id);
+    if (post) {
+      post.viewCount += 1;
+      return { viewCount: post.viewCount };
+    }
+    return { viewCount: 0 };
+  }
+
+  static async createForumComment(id: string, req: CreateForumCommentRequest): Promise<ForumCommentDTO> {
+    const user = getStoredUser() || MOCK_USERS[0];
+    try {
+      const res = await fetch(`${API_BASE}/api/forum/${id}/comments`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(req),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+
+    await delay(300);
+    const post = MOCK_FORUM_POSTS.find(p => p.id === id);
+    const newComment: ForumCommentDTO = {
+      id: 'fc_' + Date.now(),
+      postId: id,
+      author: req.isAnonymous ? {
+        id: 'anon_' + Date.now(),
+        fullName: `Anonim ${user.faculty || 'Öğrenci'}`,
+        email: 'anon@ogr.dpu.edu.tr',
+        faculty: user.faculty || 'Dumlupınar Üniversitesi',
+        joinedAt: new Date().toISOString(),
+        verifiedStudent: true,
+      } : user,
+      content: req.content.trim(),
+      createdAt: new Date().toISOString(),
+      isAnonymous: req.isAnonymous,
+    };
+
+    if (post) {
+      if (!post.comments) post.comments = [];
+      post.comments.push(newComment);
+      post.commentCount = post.comments.length;
+    }
+
+    return newComment;
+  }
+
+  static async reportForumPost(id: string, reason: string = 'Uygunsuz İçerik'): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/api/forum/${id}/report`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ reason }),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+
+    await delay(250);
+    return {
+      success: true,
+      message: 'Bildiriminiz moderatör ekibimize iletildi. İnceleme sonrası gerekli işlem yapılacaktır.',
+    };
   }
 }

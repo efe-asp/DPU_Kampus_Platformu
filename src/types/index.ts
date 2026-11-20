@@ -146,3 +146,46 @@ export interface ConversationDTO {
   unreadCount: number;
   listingSnapshot?: { title: string; imageUrl: string; price: number; };
 }
+
+// ========== Campus Forum ==========
+export type ForumTopic =
+  | '#Genel'
+  | '#VizeFinal'
+  | '#Yemekhane'
+  | '#KütahyaUlaşım'
+  | '#SoruCevap'
+  | '#KampüsHayatı';
+
+export interface ForumCommentDTO {
+  id: string;
+  postId: string;
+  author: User;
+  content: string;
+  createdAt: string;
+  isAnonymous?: boolean;
+}
+
+export interface ForumPostDTO {
+  id: string;
+  author: User;
+  content: string;
+  topic: ForumTopic;
+  isAnonymous: boolean;
+  createdAt: string;
+  likeCount: number;
+  hasLiked?: boolean;
+  commentCount: number;
+  viewCount: number;
+  comments?: ForumCommentDTO[];
+}
+
+export interface CreateForumPostRequest {
+  content: string;
+  topic: ForumTopic;
+  isAnonymous: boolean;
+}
+
+export interface CreateForumCommentRequest {
+  content: string;
+  isAnonymous?: boolean;
+}

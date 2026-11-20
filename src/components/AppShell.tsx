@@ -4,6 +4,7 @@ import {
   ShoppingBag,
   Users,
   Search as SearchIcon,
+  MessageSquareText,
   BookOpen,
   MapPin,
   BadgeCheck,
@@ -40,6 +41,11 @@ const LEFT_NAV_ITEMS = [
 ];
 
 const RIGHT_NAV_ITEMS = [
+  {
+    to: '/forum',
+    label: 'Forum',
+    icon: MessageSquareText,
+  },
   {
     to: '/notlar',
     label: 'Ders Notu & Ekip',

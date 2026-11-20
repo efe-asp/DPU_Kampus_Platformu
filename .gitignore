@@ -13,6 +13,14 @@ dist-ssr
 *.local
 .env
 
+# .NET
+bin/
+obj/
+.dotnet/
+*.user
+*.userosscache
+*.sln.docstates
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
