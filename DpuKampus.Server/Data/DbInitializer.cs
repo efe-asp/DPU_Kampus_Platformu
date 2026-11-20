@@ -247,6 +247,15 @@ namespace DpuKampus.Server.Data
                 {
                     new Club
                     {
+                        Id = "c_gg",
+                        Name = "DPÜ Gurbetçi Gençler (Kütahya)",
+                        Description = "Gurbetçi Gençler Kütahya üniversite yapılanması olarak; maç izleme buluşmaları, deplasman organizasyonları ve sosyal sorumluluk projeleriyle DPÜ'deki bordo-mavi sevdalılarını bir araya getiriyoruz.",
+                        MemberCount = 261,
+                        LogoUrl = "/images/clubs/gurbetci-gencler.jpg",
+                        Tags = "Gurbetçi Gençler,Bordo-Mavi,Deplasman"
+                    },
+                    new Club
+                    {
                         Id = "c1",
                         Name = "DPÜ Yazılım ve Bilişim Topluluğu",
                         Description = "Yazılım geliştirme, hackathon ve proje yarışmalarına odaklanan öğrenci topluluğu.",
@@ -263,6 +272,23 @@ namespace DpuKampus.Server.Data
                     }
                 };
                 context.Clubs.AddRange(clubs);
+
+                // Seed Club Events
+                var clubEvents = new List<ClubEvent>
+                {
+                    new ClubEvent
+                    {
+                        Id = "e_gg",
+                        ClubId = "c_gg",
+                        Title = "Gurbetçi Gençler Kütahya Maç İzleme Buluşması",
+                        Description = "Haftanın kritik Süper Lig karşılaşmasını DPÜ'lü bordo-mavililer olarak Bedesten Sosyal Tesisleri'nde hep birlikte dev ekranda izliyoruz. Meşale ve tezahüratlarla tam tribün havası!",
+                        Date = DateTime.UtcNow.AddDays(9),
+                        Venue = "Bedesten Sosyal Tesisleri - Gençlik Salonu",
+                        TotalQuota = 80,
+                        RegisteredCount = 61
+                    }
+                };
+                context.ClubEvents.AddRange(clubEvents);
 
                 context.SaveChanges();
                 logger.LogInformation("DPÜ Kampüs başlangıç verileri başarıyla SQL Server veritabanına kaydedildi.");

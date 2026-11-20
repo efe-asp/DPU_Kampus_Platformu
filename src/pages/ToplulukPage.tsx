@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Calendar, MapPin, UsersRound } from 'lucide-react';
+import { Users, Calendar, MapPin, UsersRound, Shield } from 'lucide-react';
 import { ApiService } from '../services/api';
 import type { ClubDTO, EventDTO } from '../types';
 
@@ -124,50 +124,92 @@ export default function ToplulukPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredClubs.map(club => (
-              <div key={club.id} className="bg-white border border-[#E4E4E7] rounded-xl p-5 hover:border-[#A1A1AA] transition-colors">
-                {/* Club header */}
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#F7F7F5] border border-[#E4E4E7] flex items-center justify-center shrink-0">
-                    <img src="/images/clubs/club-placeholder.svg" alt={club.name} className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-[#18181B] leading-tight line-clamp-2">{club.name}</h3>
-                    <p className="text-xs text-[#71717A] mt-0.5" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {club.memberCount.toLocaleString('tr-TR')} üye
-                    </p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-[#71717A] leading-relaxed mb-3 line-clamp-2">{club.description}</p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {club.tags.map(tag => (
-                    <span key={tag} className="px-2 py-0.5 text-[10px] font-medium bg-[#F7F7F5] text-[#71717A] border border-[#E4E4E7] rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Follow button */}
-                <button
-                  onClick={() => handleToggleFollow(club.id)}
-                  disabled={togglingId === club.id}
-                  className={`w-full py-2 text-xs font-medium rounded-lg border transition-colors ${
-                    club.isFollowing
-                      ? 'bg-[#F0FDF4] text-[#0F766E] border-[#BBF7D0] hover:bg-[#DCFCE7]'
-                      : 'bg-[#18181B] text-white border-[#18181B] hover:bg-[#27272A]'
-                  } disabled:opacity-60`}
+            {filteredClubs.map(club => {
+              const isGurbetci = club.id === 'c_gg' || club.tags.includes('Bordo-Mavi');
+              return (
+                <div
+                  key={club.id}
+                  className={`bg-white rounded-xl p-5 transition-all ${
+                    isGurbetci
+                      ? 'border border-[#7A1C33]/30 hover:border-[#7A1C33] shadow-[0_4px_20px_rgba(122,28,51,0.06)]'
+                      : 'border border-[#E4E4E7] hover:border-[#A1A1AA]'
+                  }`}
                 >
-                  {togglingId === club.id
-                    ? 'Güncelleniyor...'
-                    : club.isFollowing
-                    ? 'Takip Ediliyor'
-                    : 'Takip Et'}
-                </button>
-              </div>
-            ))}
+                  {/* Club header */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <div
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ${
+                        isGurbetci
+                          ? 'bg-[#7A1C33]/10 text-[#7A1C33] border border-[#38BDF8]/40 shadow-xs'
+                          : 'bg-[#F7F7F5] border border-[#E4E4E7]'
+                      }`}
+                    >
+                      {club.logoUrl ? (
+                        <img
+                          src={club.logoUrl}
+                          alt={club.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback if image fails
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : isGurbetci ? (
+                        <Shield className="w-5 h-5 text-[#7A1C33]" />
+                      ) : (
+                        <img src="/images/clubs/club-placeholder.svg" alt={club.name} className="w-6 h-6 object-contain" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-[#18181B] leading-tight line-clamp-2">{club.name}</h3>
+                      <p className="text-xs text-[#71717A] mt-0.5" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        {club.memberCount.toLocaleString('tr-TR')} üye
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-[#71717A] leading-relaxed mb-3 line-clamp-2">{club.description}</p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {club.tags.map(tag => {
+                      const isBordoMaviTag = tag === 'Bordo-Mavi' || tag === 'Gurbetçi Gençler' || tag === 'Deplasman';
+                      return (
+                        <span
+                          key={tag}
+                          className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${
+                            isBordoMaviTag
+                              ? 'bg-[#7A1C33]/10 text-[#7A1C33] border border-[#38BDF8]/40'
+                              : 'bg-[#F7F7F5] text-[#71717A] border border-[#E4E4E7]'
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* Follow button */}
+                  <button
+                    onClick={() => handleToggleFollow(club.id)}
+                    disabled={togglingId === club.id}
+                    className={`w-full py-2 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
+                      club.isFollowing
+                        ? 'bg-[#F0FDF4] text-[#0F766E] border-[#BBF7D0] hover:bg-[#DCFCE7]'
+                        : isGurbetci
+                        ? 'bg-[#0F172A] hover:bg-[#7A1C33] text-white border-[#0F172A] hover:border-[#7A1C33] shadow-xs active:scale-[0.99]'
+                        : 'bg-[#18181B] text-white border-[#18181B] hover:bg-[#27272A]'
+                    } disabled:opacity-60`}
+                  >
+                    {togglingId === club.id
+                      ? 'Güncelleniyor...'
+                      : club.isFollowing
+                      ? 'Takip Ediliyor ✓'
+                      : 'Takip Et'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>
@@ -193,12 +235,20 @@ export default function ToplulukPage() {
             {events.map(event => {
               const { day, month, time } = formatEventDate(event.date);
               const isFull = event.registeredCount >= event.totalQuota;
+              const isGgEvent = event.clubId === 'c_gg';
               return (
-                <div key={event.id} className="bg-white border border-[#E4E4E7] rounded-xl p-5 hover:border-[#A1A1AA] transition-colors">
+                <div
+                  key={event.id}
+                  className={`bg-white rounded-xl p-5 transition-all ${
+                    isGgEvent
+                      ? 'border border-[#7A1C33]/30 hover:border-[#7A1C33] shadow-[0_2px_12px_rgba(122,28,51,0.05)]'
+                      : 'border border-[#E4E4E7] hover:border-[#A1A1AA]'
+                  }`}
+                >
                   <div className="flex items-start gap-4">
                     {/* Date badge */}
                     <div className="shrink-0 w-14 text-center">
-                      <div className="bg-[#18181B] text-white rounded-t-lg py-1 px-2">
+                      <div className={`text-white rounded-t-lg py-1 px-2 ${isGgEvent ? 'bg-[#7A1C33]' : 'bg-[#18181B]'}`}>
                         <span className="text-[10px] font-bold tracking-wider">{month}</span>
                       </div>
                       <div className="bg-[#F7F7F5] border border-t-0 border-[#E4E4E7] rounded-b-lg py-1.5">
@@ -211,11 +261,11 @@ export default function ToplulukPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
-                          <p className="text-xs text-[#71717A] mb-1">{event.clubName}</p>
+                          <p className={`text-xs mb-1 font-medium ${isGgEvent ? 'text-[#7A1C33]' : 'text-[#71717A]'}`}>{event.clubName}</p>
                           <h3 className="text-sm font-semibold text-[#18181B] leading-snug mb-2">{event.title}</h3>
                           <p className="text-xs text-[#71717A] leading-relaxed mb-3 line-clamp-2">{event.description}</p>
                           <div className="flex items-center gap-1.5 text-xs text-[#71717A] mb-2">
-                            <MapPin size={12} />
+                            <MapPin size={12} className={isGgEvent ? 'text-[#7A1C33]' : 'text-[#71717A]'} />
                             <span className="truncate">{event.venue}</span>
                           </div>
                           <QuotaBar registered={event.registeredCount} total={event.totalQuota} />
@@ -225,18 +275,20 @@ export default function ToplulukPage() {
                         <button
                           onClick={() => handleRegister(event.id)}
                           disabled={registeringId === event.id || (isFull && !event.isRegistered)}
-                          className={`shrink-0 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
+                          className={`shrink-0 px-4 py-2 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                             event.isRegistered
                               ? 'bg-[#F0FDF4] text-[#0F766E] border-[#BBF7D0] hover:bg-[#DCFCE7]'
                               : isFull
                               ? 'bg-[#F7F7F5] text-[#A1A1AA] border-[#E4E4E7] cursor-not-allowed'
+                              : isGgEvent
+                              ? 'bg-[#0F172A] hover:bg-[#7A1C33] text-white border-[#0F172A] hover:border-[#7A1C33] shadow-xs'
                               : 'bg-[#18181B] text-white border-[#18181B] hover:bg-[#27272A]'
                           } disabled:opacity-60`}
                         >
                           {registeringId === event.id
                             ? '...'
                             : event.isRegistered
-                            ? 'Katılıyorum'
+                            ? 'Katılıyorum ✓'
                             : isFull
                             ? 'Kontenjan Dolu'
                             : 'Katıl'}

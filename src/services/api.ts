@@ -58,6 +58,15 @@ const MOCK_LISTINGS: ListingDTO[] = [
 ];
 
 const MOCK_CLUBS: ClubDTO[] = [
+  {
+    id: 'c_gg',
+    name: 'DPÜ Gurbetçi Gençler (Kütahya)',
+    description: "Gurbetçi Gençler Kütahya üniversite yapılanması olarak; maç izleme buluşmaları, deplasman organizasyonları ve sosyal sorumluluk projeleriyle DPÜ'deki bordo-mavi sevdalılarını bir araya getiriyoruz.",
+    memberCount: 261,
+    logoUrl: '/images/clubs/gurbetci-gencler.jpg',
+    tags: ['Gurbetçi Gençler', 'Bordo-Mavi', 'Deplasman'],
+    isFollowing: false,
+  },
   { id: 'c1', name: 'DPÜ Yazılım ve Bilişim Topluluğu', description: 'Yazılım geliştirme, hackathon ve proje yarışmalarına odaklanan öğrenci topluluğu.', memberCount: 312, tags: ['Yazılım', 'Hackathon', 'Teknofest'], isFollowing: false },
   { id: 'c2', name: 'Siber Güvenlik Topluluğu', description: 'CTF yarışmaları, penetrasyon testi ve siber güvenlik farkındalığı üzerine çalışan topluluk.', memberCount: 178, tags: ['CTF', 'Güvenlik', 'Linux'], isFollowing: true },
   { id: 'c3', name: 'E-Spor ve Oyun Topluluğu', description: 'League of Legends, Valorant ve diğer oyunlarda turnuvalar düzenleyen üniversite topluluğu.', memberCount: 456, tags: ['E-Spor', 'Gaming', 'Turnuva'], isFollowing: false },
@@ -67,6 +76,18 @@ const MOCK_CLUBS: ClubDTO[] = [
 ];
 
 const MOCK_EVENTS: EventDTO[] = [
+  {
+    id: 'e_gg',
+    clubId: 'c_gg',
+    clubName: 'DPÜ Gurbetçi Gençler (Kütahya)',
+    title: 'Gurbetçi Gençler Kütahya Maç İzleme Buluşması',
+    description: "Haftanın kritik Süper Lig karşılaşmasını DPÜ'lü bordo-mavililer olarak Bedesten Sosyal Tesisleri'nde hep birlikte dev ekranda izliyoruz. Meşale ve tezahüratlarla tam tribün havası!",
+    date: '2026-11-29T19:00:00Z',
+    venue: 'Bedesten Sosyal Tesisleri - Gençlik Salonu',
+    totalQuota: 80,
+    registeredCount: 61,
+    isRegistered: false,
+  },
   { id: 'e1', clubId: 'c1', clubName: 'DPÜ Yazılım ve Bilişim Topluluğu', title: 'React ve TypeScript ile Modern Web Geliştirme', description: 'Sıfırdan modern bir React uygulaması inşa etme workshopu. Laptop getirmeniz önerilir.', date: '2026-11-25T14:00:00Z', venue: 'Mühendislik Konferans Salonu - A201', totalQuota: 50, registeredCount: 38, isRegistered: false },
   { id: 'e2', clubId: 'c2', clubName: 'Siber Güvenlik Topluluğu', title: 'Başlangıç Seviye CTF Çözüm Atölyesi', description: 'Capture The Flag yarışmalarına hazırlık için pratik siber güvenlik egzersizleri.', date: '2026-11-28T10:00:00Z', venue: 'Bilgisayar Lab 3 - Mühendislik Binası', totalQuota: 30, registeredCount: 29, isRegistered: true },
   { id: 'e3', clubId: 'c5', clubName: 'Girişimcilik ve İnovasyon Kulübü', title: 'DPÜ Demo Day — Öğrenci Proje Sunumları', description: 'Kütahya ekosisteminden yatırımcılar önünde öğrenci projelerinin sunulacağı Demo Day.', date: '2026-12-05T13:00:00Z', venue: 'Bedesten Etkinlik Alanı', totalQuota: 100, registeredCount: 72, isRegistered: false },
