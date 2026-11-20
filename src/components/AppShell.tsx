@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Menu,
   X,
+  LogIn,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import NewListingModal from './NewListingModal';
@@ -291,27 +292,28 @@ export default function AppShell() {
               )}
             </div>
           ) : (
-            /* When Logged Out (Guest Mode): Crisp "Giriş Yap" & "Kayıt Ol" Buttons */
+            /* When Logged Out (Guest Mode): Crisp "Kayıt Ol" & Sleek Dark Pill "Giriş Yap" */
             <div className="hidden md:flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthInitialTab('login');
-                  navigate('/auth');
-                }}
-                className="text-[13px] font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer"
-              >
-                Giriş Yap
-              </button>
               <button
                 type="button"
                 onClick={() => {
                   setAuthInitialTab('register');
                   navigate('/auth');
                 }}
-                className="text-[13px] font-semibold bg-[#0F172A] hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl shadow-xs whitespace-nowrap transition-all cursor-pointer active:scale-[0.99]"
+                className="text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 px-3.5 py-2 rounded-full whitespace-nowrap transition-all cursor-pointer"
               >
                 Kayıt Ol
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthInitialTab('login');
+                  navigate('/auth');
+                }}
+                className="bg-[#0F172A] hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-xs whitespace-nowrap transition-all cursor-pointer active:scale-[0.99]"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Giriş Yap</span>
               </button>
             </div>
           )}
@@ -325,19 +327,10 @@ export default function AppShell() {
                   setAuthInitialTab('login');
                   navigate('/auth');
                 }}
-                className="text-xs font-semibold text-slate-700 hover:text-slate-900 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
+                className="bg-[#0F172A] text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-xs"
               >
-                Giriş
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthInitialTab('register');
-                  navigate('/auth');
-                }}
-                className="text-xs font-semibold bg-[#0F172A] text-white px-2.5 py-1 rounded-lg shadow-xs"
-              >
-                Kayıt
+                <LogIn className="w-3 h-3" />
+                <span>Giriş</span>
               </button>
             </div>
           )}
