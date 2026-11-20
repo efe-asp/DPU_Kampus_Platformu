@@ -525,7 +525,8 @@ export default function AuthPage({ initialTab, onBackToHome }: AuthPageProps = {
           <div className="relative z-10 space-y-3.5">
             <div className="space-y-1">
               <h1 className="text-2xl sm:text-3xl xl:text-4xl font-black tracking-tight text-white leading-tight drop-shadow-sm">
-                Kütahya Dumlupınar Üniversitesi Öğrenci Platformu
+                Kütahya Dumlupınar Üniversitesi
+                <span className="block">Öğrenci Platformu</span>
               </h1>
               <p className="text-xs sm:text-sm text-white/90 font-normal leading-relaxed max-w-xl drop-shadow-sm">
                 Doğrulanmış ikinci el pazar, topluluklar ve kampüs dayanışma ağı
