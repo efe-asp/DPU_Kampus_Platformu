@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ShoppingBag,
@@ -140,26 +140,12 @@ const FEATURED_EVENTS: FeaturedEvent[] = [
   },
 ];
 
-// ─── Hero Carousel Slide Data ─────────────────────────────────────────────────
-const HERO_SLIDES = [
-  {
-    tagline: "DPÜ Kampüs'e",
-    welcome: 'Hoş Geldin!',
-    subtitle:
-      'Dumlupınar Üniversitesi öğrencileri için geliştirilmiş bu platformda kampüs hayatını daha kolay yaşa!',
-  },
-  {
-    tagline: 'Güvenli İkinci El',
-    welcome: 'Kampüs Pazarı!',
-    subtitle:
-      'Kitap, ders notu, elektronik ve ev eşyalarını elden teslim avantajıyla güvenle paylaş!',
-  },
-  {
-    tagline: 'Topluluk & Etkinlik',
-    welcome: 'Kampüs Dayanışması!',
-    subtitle:
-      'Öğrenci kulüpleri, maç izleme buluşmaları ve kampüs etkinliklerinden anında haberdar ol!',
-  },
+// ─── Campus Entrance Photo Slides (2.5s Auto-Transition) ──────────────────────
+const CAMPUS_SLIDES = [
+  '/images/campus/campus-1.jpg',
+  '/images/campus/campus-2.jpg',
+  '/images/campus/campus-3.jpg',
+  '/images/campus/campus-4.jpg',
 ];
 
 export default function HomePage() {
@@ -167,8 +153,16 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   // State
-  const [heroSlide, setHeroSlide] = useState(0);
+  const [bgSlide, setBgSlide] = useState(0);
   const [eventSlide, setEventSlide] = useState(0);
+
+  // Auto-advance background campus photos every 2.5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBgSlide((prev) => (prev + 1) % CAMPUS_SLIDES.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, []);
   const [imgError, setImgError] = useState(false);
   const [announcementModalOpen, setAnnouncementModalOpen] = useState(false);
   const [activeAnnouncement, setActiveAnnouncement] = useState<Announcement | null>(null);
@@ -212,38 +206,29 @@ export default function HomePage() {
     setAnnouncementModalOpen(true);
   };
 
-  const currentHero = HERO_SLIDES[heroSlide];
   const currentEvent = FEATURED_EVENTS[eventSlide];
   const isEventRegistered = registeredEvents[currentEvent.id] ?? false;
 
   return (
     <div className="w-full space-y-5 pt-1 pb-10 font-sans select-none">
       {/* ═══════════════════════════════════════════════════════════════════════
-          ROW 1: FULL-WIDTH CAMPUS HERO BANNER
+          ROW 1: FULL-WIDTH CAMPUS HERO BANNER (2.5s Auto Slideshow)
       ═══════════════════════════════════════════════════════════════════════ */}
       <div className="rounded-2xl overflow-hidden relative bg-[#091526] min-h-[260px] sm:min-h-[290px] flex items-center shadow-lg border border-slate-800/80">
-        {/* Right-Side Campus Visual & Multi-Stop Gradient Blend */}
+        {/* Right-Side Campus Photo Slideshow & Multi-Stop Gradient Blend */}
         <div className="absolute inset-y-0 right-0 w-full lg:w-[62%] h-full overflow-hidden pointer-events-none">
-          {!imgError ? (
+          {CAMPUS_SLIDES.map((src, idx) => (
             <img
-              src="/images/dpu-campus.png"
-              alt="Kütahya Dumlupınar Üniversitesi Giriş Kapısı"
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover object-center pointer-events-none"
+              key={src}
+              src={src}
+              alt={`DPÜ Yerleşkesi Fotoğrafı ${idx + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-all duration-1000 ease-in-out ${
+                bgSlide === idx ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+              }`}
             />
-          ) : (
-            <video
-              src="/videos/tanitim.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              controls={false}
-              className="w-full h-full object-cover object-center pointer-events-none"
-            />
-          )}
+          ))}
 
-          {/* Smooth multi-stop horizontal gradient fade into dark navy */}
+          {/* Smooth multi-stop horizontal gradient fade into dark navy on the left */}
           <div
             className="absolute inset-0 bg-gradient-to-r from-[#091526] via-[#091526]/90 via-30% to-transparent pointer-events-none"
             aria-hidden="true"
@@ -259,17 +244,17 @@ export default function HomePage() {
         <div className="relative z-10 p-6 sm:p-9 max-w-xl">
           {/* Two-line Bold Headline */}
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-            <span className="block text-white">{currentHero.tagline}</span>
+            <span className="block text-white">DPÜ Kampüs'e</span>
             <span className="block text-sky-300">
-              {user?.fullName && heroSlide === 0
+              {user?.fullName
                 ? `Hoş Geldin, ${user.fullName.trim().split(' ')[0]}!`
-                : currentHero.welcome}
+                : 'Hoş Geldin!'}
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-xs sm:text-sm text-slate-200 mt-2.5 leading-relaxed max-w-md">
-            {currentHero.subtitle}
+            Dumlupınar Üniversitesi öğrencileri için geliştirilmiş bu platformda kampüs hayatını daha kolay yaşa!
           </p>
 
           {/* 5 Translucent Category Dark-Glass Pills */}
@@ -335,15 +320,15 @@ export default function HomePage() {
 
         {/* Bottom-Right Interactive Slide Dots */}
         <div className="absolute bottom-4 right-5 z-10 flex items-center gap-1.5">
-          {HERO_SLIDES.map((_, idx) => (
+          {CAMPUS_SLIDES.map((_, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => setHeroSlide(idx)}
+              onClick={() => setBgSlide(idx)}
               className={`transition-all rounded-full cursor-pointer ${
-                heroSlide === idx ? 'w-5 h-1.5 bg-white shadow-xs' : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
+                bgSlide === idx ? 'w-5 h-1.5 bg-white shadow-xs' : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
               }`}
-              aria-label={`Slide ${idx + 1}`}
+              aria-label={`Fotoğraf ${idx + 1}`}
             />
           ))}
         </div>
