@@ -121,7 +121,7 @@ export default function AppShell() {
         <div className="grid grid-cols-[1fr_auto_1fr] items-center max-w-7xl mx-auto h-full w-full">
           
           {/* ── LEFT COLUMN: 3 Navigation Items Aligned Right Toward Center Logo ── */}
-          <div className="flex items-center justify-start md:justify-end gap-1.5 lg:gap-2 pr-0 md:pr-6">
+          <div className="flex items-center justify-start md:justify-end gap-1.5 pr-0 md:pr-4">
             {/* Mobile Hamburger Toggle (md:hidden) */}
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -132,7 +132,7 @@ export default function AppShell() {
             </button>
 
             {/* Desktop Left 3 Nav Items */}
-            <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+            <nav className="hidden md:flex items-center gap-1.5">
               {LEFT_NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = !isHome && location.pathname.startsWith(item.to);
@@ -141,14 +141,14 @@ export default function AppShell() {
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all ${
                       isActive
                         ? 'bg-slate-900 text-white shadow-xs font-semibold'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                     }`}
                   >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span>{item.label}</span>
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    <span className="whitespace-nowrap">{item.label}</span>
                   </NavLink>
                 );
               })}
@@ -178,10 +178,10 @@ export default function AppShell() {
             </button>
           </div>
 
-          {/* ── RIGHT COLUMN: 2 Navigation Items + Profile Dropdown ── */}
-          <div className="flex items-center justify-end md:justify-between pl-0 md:pl-6">
-            {/* Desktop Right 2 Nav Items */}
-            <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+          {/* ── RIGHT COLUMN: 3 Navigation Items + Profile Dropdown ── */}
+          <div className="flex items-center justify-end md:justify-start pl-0 md:pl-4">
+            {/* Desktop Right 3 Nav Items */}
+            <nav className="hidden md:flex items-center gap-1.5">
               {RIGHT_NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = !isHome && location.pathname.startsWith(item.to);
@@ -190,38 +190,34 @@ export default function AppShell() {
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all ${
                       isActive
                         ? 'bg-slate-900 text-white shadow-xs font-semibold'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                     }`}
                   >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span>{item.label}</span>
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    <span className="whitespace-nowrap">{item.label}</span>
                   </NavLink>
                 );
               })}
             </nav>
 
-            {/* Profile Dropdown (Far Right) */}
+            {/* Vertical Divider Between Menu & Profile */}
+            <div className="hidden md:block h-5 w-px bg-slate-200/90 ml-auto mr-4" />
+
+            {/* Profile Dropdown (Minimal Avatar-Only "E" Badge) */}
             <div className="relative" ref={dropdownRef}>
               <button
+                type="button"
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-slate-200 hover:border-slate-400 bg-white shadow-xs transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-[#0F172A] text-white text-sm font-bold flex items-center justify-center shadow-xs ring-2 ring-slate-200/80 hover:ring-emerald-500/50 transition-all cursor-pointer relative"
+                aria-label="Profil ve Hesap Menüsü"
+                title={`${user?.fullName || 'Efe Alsaç'} • Öğrenci Hesabı`}
               >
-                <div className="w-7 h-7 rounded-lg bg-[#0F172A] text-white flex items-center justify-center text-xs font-bold shrink-0">
-                  {user?.fullName ? user.fullName.charAt(0) : 'E'}
-                </div>
-                <div className="hidden lg:flex flex-col text-left">
-                  <span className="text-xs font-bold text-slate-900 leading-tight">
-                    {user?.fullName || 'Efe Alsaç'}
-                  </span>
-                  <span className="text-[10px] text-emerald-700 font-medium leading-tight flex items-center gap-0.5">
-                    <BadgeCheck className="w-2.5 h-2.5" />
-                    Doğrulanmış Öğrenci
-                  </span>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span>{user?.fullName ? user.fullName.charAt(0) : 'E'}</span>
+                {/* Small emerald unread-message dot */}
+                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white absolute -top-0.5 -right-0.5" />
               </button>
 
               {/* Profile Dropdown Menu */}
