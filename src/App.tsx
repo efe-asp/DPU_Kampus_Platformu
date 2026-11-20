@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { useAuth } from './contexts/AuthContext';
 import AuthPage from './pages/AuthPage';
 import AppShell from './components/AppShell';
@@ -10,26 +11,33 @@ import KayipBuluntuPage from './pages/KayipBuluntuPage';
 import NotlarPage from './pages/NotlarPage';
 import RadarPage from './pages/RadarPage';
 import ProfilPage from './pages/ProfilPage';
+import PortalSplashOverlay from './components/PortalSplashOverlay';
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <AuthPage />;
-  }
+  const { isAuthenticated, isEnteringPortal } = useAuth();
 
   return (
-    <Routes>
-      <Route path="/" element={<AppShell />}>
-        <Route index element={<HomePage />} />
-        <Route path="pazar" element={<PazarPage />} />
-        <Route path="topluluklar" element={<ToplulukPage />} />
-        <Route path="kayip-buluntu" element={<KayipBuluntuPage />} />
-        <Route path="notlar" element={<NotlarPage />} />
-        <Route path="radar" element={<RadarPage />} />
-        <Route path="profil" element={<ProfilPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+    <>
+      <AnimatePresence>
+        {isEnteringPortal && <PortalSplashOverlay key="portal-splash" />}
+      </AnimatePresence>
+
+      {!isAuthenticated ? (
+        <AuthPage />
+      ) : (
+        <Routes>
+          <Route path="/" element={<AppShell />}>
+            <Route index element={<HomePage />} />
+            <Route path="pazar" element={<PazarPage />} />
+            <Route path="topluluklar" element={<ToplulukPage />} />
+            <Route path="kayip-buluntu" element={<KayipBuluntuPage />} />
+            <Route path="notlar" element={<NotlarPage />} />
+            <Route path="radar" element={<RadarPage />} />
+            <Route path="profil" element={<ProfilPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      )}
+    </>
   );
 }

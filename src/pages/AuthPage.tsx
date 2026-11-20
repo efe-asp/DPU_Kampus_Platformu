@@ -209,7 +209,7 @@ function OtpInputRow({
 type View = 'login' | 'register' | 'emailVerify' | 'forgotPassword';
 
 export default function AuthPage() {
-  const { login } = useAuth();
+  const { login, setIsEnteringPortal } = useAuth();
 
   // ── View state ──
   const [view, setView] = useState<View>('login');
@@ -315,11 +315,15 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       const response = await ApiService.login({ email: loginEmail, password: loginPassword });
+      setIsEnteringPortal(true);
       login(response.user, response.token);
       if (!rememberMe) {
         localStorage.removeItem('dpu_token');
         localStorage.removeItem('dpu_user');
       }
+      setTimeout(() => {
+        setIsEnteringPortal(false);
+      }, 1500);
     } catch (err: any) {
       setError(err?.message || 'Giriş yapılırken bir hata oluştu. Bilgilerinizi kontrol edin.');
     } finally {
@@ -375,7 +379,11 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       const response = await ApiService.verifyEmailCode(pendingEmail, code);
+      setIsEnteringPortal(true);
       login(response.user, response.token);
+      setTimeout(() => {
+        setIsEnteringPortal(false);
+      }, 1500);
     } catch (err: any) {
       setError(err?.message || 'Doğrulama kodu hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
     } finally {
