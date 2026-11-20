@@ -19,12 +19,12 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 
 function getGreeting(fullName?: string): string {
-  const firstName = fullName ? fullName.trim().split(' ')[0] : 'Öğrenci';
+  const name = fullName ? fullName.trim().split(' ')[0] : "DPÜ'lü";
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return `Günaydın, ${firstName}`;
-  if (hour >= 12 && hour < 17) return `İyi öğlenler, ${firstName}`;
-  if (hour >= 17 && hour < 22) return `Hayırlı akşamlar, ${firstName}`;
-  return `İyi geceler, ${firstName}`;
+  if (hour >= 5 && hour < 12) return `Günaydın, ${name}`;
+  if (hour >= 12 && hour < 17) return `İyi öğlenler, ${name}`;
+  if (hour >= 17 && hour < 22) return `Hayırlı akşamlar, ${name}`;
+  return `İyi geceler, ${name}`;
 }
 
 function getWeatherLabel(): string {
@@ -193,7 +193,7 @@ const INITIAL_EVENTS: UpcomingEvent[] = [
 ];
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, setGuestLockModalOpen } = useAuth();
   const navigate = useNavigate();
 
   // State
@@ -207,6 +207,10 @@ export default function HomePage() {
   // Toggle Post Like
   const handleToggleLike = (e: React.MouseEvent, postId: string) => {
     e.stopPropagation();
+    if (!user) {
+      setGuestLockModalOpen(true);
+      return;
+    }
     setTrendingPosts((prev) =>
       prev.map((p) => {
         if (p.id === postId) {
@@ -225,6 +229,10 @@ export default function HomePage() {
   // Toggle Event Registration
   const handleToggleEvent = (e: React.MouseEvent, eventId: string) => {
     e.stopPropagation();
+    if (!user) {
+      setGuestLockModalOpen(true);
+      return;
+    }
     setEvents((prev) =>
       prev.map((ev) => {
         if (ev.id === eventId) {
@@ -236,6 +244,24 @@ export default function HomePage() {
         return ev;
       })
     );
+  };
+
+  const handleGoToForum = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!user) {
+      setGuestLockModalOpen(true);
+      return;
+    }
+    navigate('/forum');
+  };
+
+  const handleGoToEvents = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!user) {
+      setGuestLockModalOpen(true);
+      return;
+    }
+    navigate('/topluluklar');
   };
 
   const handleOpenAnnouncement = (item?: Announcement) => {
@@ -346,7 +372,7 @@ export default function HomePage() {
             </h2>
             <button
               type="button"
-              onClick={() => navigate('/forum')}
+              onClick={handleGoToForum}
               className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer flex items-center gap-1 group"
             >
               <span>Foruma Git</span>
@@ -359,7 +385,7 @@ export default function HomePage() {
             {trendingPosts.map((post) => (
               <div
                 key={post.id}
-                onClick={() => navigate('/forum')}
+                onClick={handleGoToForum}
                 className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] hover:border-slate-300 hover:shadow-md transition-all cursor-pointer group"
               >
                 {/* Card Top: Author, Faculty, Time, Topic */}
@@ -441,7 +467,7 @@ export default function HomePage() {
             <h2 className="text-lg font-bold text-slate-900">Yaklaşan Etkinlikler</h2>
             <button
               type="button"
-              onClick={() => navigate('/topluluklar')}
+              onClick={handleGoToEvents}
               className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer flex items-center gap-1 group"
             >
               <span>Tümü</span>

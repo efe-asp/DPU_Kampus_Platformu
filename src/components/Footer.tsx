@@ -48,7 +48,7 @@ type ModalType = 'faq' | 'terms' | 'privacy' | 'contact' | null;
 
 export default function Footer() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, setGuestLockModalOpen } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -60,6 +60,10 @@ export default function Footer() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      setGuestLockModalOpen(true);
+      return;
+    }
     if (searchQuery.trim()) {
       navigate(`/pazar?q=${encodeURIComponent(searchQuery.trim())}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -67,6 +71,10 @@ export default function Footer() {
   };
 
   const handleKeywordClick = (keyword: string) => {
+    if (!user) {
+      setGuestLockModalOpen(true);
+      return;
+    }
     setSearchQuery(keyword);
     navigate(`/pazar?q=${encodeURIComponent(keyword)}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });

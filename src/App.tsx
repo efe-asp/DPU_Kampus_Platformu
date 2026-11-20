@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from './contexts/AuthContext';
@@ -14,6 +14,23 @@ import ProfilPage from './pages/ProfilPage';
 import ForumPage from './pages/ForumPage';
 import PortalSplashOverlay from './components/PortalSplashOverlay';
 import ExitSplashOverlay from './components/ExitSplashOverlay';
+import GuestLockModal from './components/GuestLockModal';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, setGuestLockModalOpen } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setGuestLockModalOpen(true);
+    }
+  }, [isAuthenticated, setGuestLockModalOpen]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 export default function App() {
   const { isAuthenticated, isEnteringPortal, isExitingPortal } = useAuth();
@@ -25,23 +42,77 @@ export default function App() {
         {isExitingPortal && <ExitSplashOverlay key="exit-splash" />}
       </AnimatePresence>
 
-      {!isAuthenticated ? (
-        <AuthPage />
-      ) : (
-        <Routes>
-          <Route path="/" element={<AppShell />}>
-            <Route index element={<HomePage />} />
-            <Route path="pazar" element={<PazarPage />} />
-            <Route path="topluluklar" element={<ToplulukPage />} />
-            <Route path="kayip-buluntu" element={<KayipBuluntuPage />} />
-            <Route path="notlar" element={<NotlarPage />} />
-            <Route path="radar" element={<RadarPage />} />
-            <Route path="forum" element={<ForumPage />} />
-            <Route path="profil" element={<ProfilPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      )}
+      <GuestLockModal />
+
+      <Routes>
+        {/* Full-screen split video Login/Register page */}
+        <Route
+          path="/auth"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />}
+        />
+
+        {/* Public Guest Landing & Authenticated App Shell */}
+        <Route path="/" element={<AppShell />}>
+          <Route index element={<HomePage />} />
+          <Route
+            path="pazar"
+            element={
+              <ProtectedRoute>
+                <PazarPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="topluluklar"
+            element={
+              <ProtectedRoute>
+                <ToplulukPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="kayip-buluntu"
+            element={
+              <ProtectedRoute>
+                <KayipBuluntuPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="notlar"
+            element={
+              <ProtectedRoute>
+                <NotlarPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="radar"
+            element={
+              <ProtectedRoute>
+                <RadarPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="forum"
+            element={
+              <ProtectedRoute>
+                <ForumPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="profil"
+            element={
+              <ProtectedRoute>
+                <ProfilPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
     </>
   );
 }

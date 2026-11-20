@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Eye,
@@ -208,11 +209,34 @@ function OtpInputRow({
 // ─── Main Component ───────────────────────────────────────────────────────────
 type View = 'login' | 'register' | 'emailVerify' | 'forgotPassword';
 
-export default function AuthPage() {
-  const { login, setIsEnteringPortal } = useAuth();
+interface AuthPageProps {
+  initialTab?: 'login' | 'register';
+  onBackToHome?: () => void;
+}
 
+export default function AuthPage({ initialTab, onBackToHome }: AuthPageProps = {}) {
+  const { login, setIsEnteringPortal, authInitialTab } = useAuth();
+  const navigate = useNavigate();
+
+  const startingTab = initialTab || authInitialTab || 'login';
   // ── View state ──
-  const [view, setView] = useState<View>('login');
+  const [view, setView] = useState<View>(startingTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setView(initialTab);
+    } else if (authInitialTab) {
+      setView(authInitialTab);
+    }
+  }, [initialTab, authInitialTab]);
+
+  const handleBackToHome = () => {
+    if (onBackToHome) {
+      onBackToHome();
+    } else {
+      navigate('/');
+    }
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -323,6 +347,7 @@ export default function AuthPage() {
           localStorage.removeItem('dpu_user');
         }
         setIsEnteringPortal(false);
+        navigate('/');
       }, 2400);
     } catch (err: any) {
       setError(err?.message || 'Giriş yapılırken bir hata oluştu. Bilgilerinizi kontrol edin.');
@@ -383,6 +408,7 @@ export default function AuthPage() {
       setTimeout(() => {
         login(response.user, response.token);
         setIsEnteringPortal(false);
+        navigate('/');
       }, 2400);
     } catch (err: any) {
       setError(err?.message || 'Doğrulama kodu hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
@@ -528,6 +554,21 @@ export default function AuthPage() {
 
         {/* ── RIGHT COLUMN: Elevated Modern Auth Card ── */}
         <div className="lg:col-span-5 h-full bg-[#F8FAFC] [background-image:radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:20px_20px] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-6 xl:px-8 py-4 overflow-y-auto lg:overflow-hidden border-l border-slate-200/80">
+
+          {/* Top navigation back to home link */}
+          <div className="w-full max-w-[440px] mb-2.5 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handleBackToHome}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer group py-1 px-2.5 -ml-2 rounded-xl hover:bg-slate-200/60"
+            >
+              <span className="group-hover:-translate-x-0.5 transition-transform text-slate-400 group-hover:text-slate-700">←</span>
+              <span>Ana Sayfaya Dön</span>
+            </button>
+            <span className="text-[11px] font-semibold text-slate-400 hidden sm:inline select-none">
+              Ziyaretçi Modu
+            </span>
+          </div>
 
           <motion.div
             layout

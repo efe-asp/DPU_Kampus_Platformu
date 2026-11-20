@@ -12,6 +12,12 @@ interface AuthContextType {
   setIsEnteringPortal: (v: boolean) => void;
   isExitingPortal: boolean;
   setIsExitingPortal: (v: boolean) => void;
+  authInitialTab: 'login' | 'register';
+  setAuthInitialTab: (tab: 'login' | 'register') => void;
+  guestLockModalOpen: boolean;
+  setGuestLockModalOpen: (open: boolean) => void;
+  openAuth: (tab?: 'login' | 'register') => void;
+  requireAuth: (callback?: () => void) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -27,6 +33,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setTokenState] = useState<string | null>(getToken);
   const [isEnteringPortal, setIsEnteringPortal] = useState(false);
   const [isExitingPortal, setIsExitingPortal] = useState(false);
+  const [authInitialTab, setAuthInitialTab] = useState<'login' | 'register'>('login');
+  const [guestLockModalOpen, setGuestLockModalOpen] = useState(false);
 
   useEffect(() => {
     // If user has token but no stored user, or vice versa, sync state
@@ -43,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTokenState(t);
     setStoredUser(u);
     setToken(t);
+    setGuestLockModalOpen(false);
   };
 
   const logout = () => {
@@ -50,6 +59,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTokenState(null);
     clearStoredUser();
     clearToken();
+  };
+
+  const openAuth = (tab: 'login' | 'register' = 'login') => {
+    setAuthInitialTab(tab);
+    setGuestLockModalOpen(false);
+  };
+
+  const requireAuth = (callback?: () => void): boolean => {
+    if (user && token) {
+      if (callback) callback();
+      return true;
+    }
+    setGuestLockModalOpen(true);
+    return false;
   };
 
   return (
@@ -64,6 +87,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsEnteringPortal,
         isExitingPortal,
         setIsExitingPortal,
+        authInitialTab,
+        setAuthInitialTab,
+        guestLockModalOpen,
+        setGuestLockModalOpen,
+        openAuth,
+        requireAuth,
       }}
     >
       {children}

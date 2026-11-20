@@ -61,7 +61,7 @@ const RIGHT_NAV_ITEMS = [
 const ALL_NAV_ITEMS = [...LEFT_NAV_ITEMS, ...RIGHT_NAV_ITEMS];
 
 export default function AppShell() {
-  const { user, logout, setIsExitingPortal } = useAuth();
+  const { user, logout, setIsExitingPortal, setAuthInitialTab, setGuestLockModalOpen } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -81,6 +81,14 @@ export default function AppShell() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleNavClick = (e: React.MouseEvent, to: string) => {
+    if (!user) {
+      e.preventDefault();
+      setGuestLockModalOpen(true);
+      return;
+    }
+  };
 
   const handleListingCreated = (_listing: ListingDTO) => {
     setNewListingModalOpen(false);
@@ -141,6 +149,7 @@ export default function AppShell() {
                   <NavLink
                     key={item.to}
                     to={item.to}
+                    onClick={(e) => handleNavClick(e, item.to)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all ${
                       isActive
                         ? 'bg-slate-900 text-white shadow-xs font-semibold'
@@ -178,7 +187,7 @@ export default function AppShell() {
             </button>
           </div>
 
-          {/* ── RIGHT COLUMN: 3 Navigation Items + Profile Dropdown ── */}
+          {/* ── RIGHT COLUMN: 3 Navigation Items + Profile Dropdown or Guest Auth Buttons ── */}
           <div className="flex items-center justify-end md:justify-start pl-0 md:pl-4">
             {/* Desktop Right 3 Nav Items */}
             <nav className="hidden md:flex items-center gap-1.5">
@@ -190,6 +199,7 @@ export default function AppShell() {
                   <NavLink
                     key={item.to}
                     to={item.to}
+                    onClick={(e) => handleNavClick(e, item.to)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all ${
                       isActive
                         ? 'bg-slate-900 text-white shadow-xs font-semibold'
@@ -203,22 +213,23 @@ export default function AppShell() {
               })}
             </nav>
 
-            {/* Vertical Divider Between Menu & Profile */}
-            <div className="hidden md:block h-5 w-px bg-slate-200/90 ml-auto mr-4" />
+            {/* Vertical Divider Between Menu & Profile / Guest Buttons */}
+            <div className="hidden md:block h-5 w-px bg-slate-200/90 ml-auto mr-3" />
 
-            {/* Profile Dropdown (Minimal Avatar-Only "E" Badge) */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="w-9 h-9 rounded-full bg-[#0F172A] text-white text-sm font-bold flex items-center justify-center shadow-xs ring-2 ring-slate-200/80 hover:ring-emerald-500/50 transition-all cursor-pointer relative"
-                aria-label="Profil ve Hesap Menüsü"
-                title={`${user?.fullName || 'Efe Alsaç'} • Öğrenci Hesabı`}
-              >
-                <span>{user?.fullName ? user.fullName.charAt(0) : 'E'}</span>
-                {/* Small emerald unread-message dot */}
-                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white absolute -top-0.5 -right-0.5" />
-              </button>
+            {/* Profile Dropdown (when logged in) or Guest Buttons (when logged out) */}
+            {user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="w-9 h-9 rounded-full bg-[#0F172A] text-white text-sm font-bold flex items-center justify-center shadow-xs ring-2 ring-slate-200/80 hover:ring-emerald-500/50 transition-all cursor-pointer relative"
+                  aria-label="Profil ve Hesap Menüsü"
+                  title={`${user.fullName || 'Efe Alsaç'} • Öğrenci Hesabı`}
+                >
+                  <span>{user.fullName ? user.fullName.charAt(0) : 'E'}</span>
+                  {/* Small emerald unread-message dot */}
+                  <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white absolute -top-0.5 -right-0.5" />
+                </button>
 
               {/* Profile Dropdown Menu */}
               {profileDropdownOpen && (
@@ -279,9 +290,60 @@ export default function AppShell() {
                 </div>
               )}
             </div>
-          </div>
+          ) : (
+            /* When Logged Out (Guest Mode): Crisp "Giriş Yap" & "Kayıt Ol" Buttons */
+            <div className="hidden md:flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthInitialTab('login');
+                  navigate('/auth');
+                }}
+                className="text-[13px] font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 px-3 py-1.5 rounded-xl whitespace-nowrap transition-all cursor-pointer"
+              >
+                Giriş Yap
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthInitialTab('register');
+                  navigate('/auth');
+                }}
+                className="text-[13px] font-semibold bg-[#0F172A] hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl shadow-xs whitespace-nowrap transition-all cursor-pointer active:scale-[0.99]"
+              >
+                Kayıt Ol
+              </button>
+            </div>
+          )}
+
+          {/* Mobile Guest Buttons (when md:hidden and not logged in) */}
+          {!user && (
+            <div className="md:hidden flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthInitialTab('login');
+                  navigate('/auth');
+                }}
+                className="text-xs font-semibold text-slate-700 hover:text-slate-900 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                Giriş
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthInitialTab('register');
+                  navigate('/auth');
+                }}
+                className="text-xs font-semibold bg-[#0F172A] text-white px-2.5 py-1 rounded-lg shadow-xs"
+              >
+                Kayıt
+              </button>
+            </div>
+          )}
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* ── MOBILE DRAWER NAVIGATION (md:hidden) ── */}
       {mobileMenuOpen && (
@@ -317,11 +379,18 @@ export default function AppShell() {
                   const Icon = item.icon;
                   const isActive = !isHome && location.pathname.startsWith(item.to);
                   return (
-                    <NavLink
+                    <button
                       key={item.to}
-                      to={item.to}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        if (!user) {
+                          setGuestLockModalOpen(true);
+                          return;
+                        }
+                        navigate(item.to);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
                         isActive
                           ? 'bg-slate-900 text-white shadow-xs'
                           : 'text-slate-700 hover:bg-slate-100'
@@ -329,46 +398,78 @@ export default function AppShell() {
                     >
                       <Icon className="w-4 h-4 shrink-0" />
                       <span>{item.label}</span>
-                    </NavLink>
+                    </button>
                   );
                 })}
               </nav>
-
-              {/* Mobile Messages Shortcut */}
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setInboxOpen(true);
-                }}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <MessageCircle className="w-4 h-4 text-slate-500" />
-                  <span>Mesajlarım</span>
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                  3
-                </span>
-              </button>
             </div>
 
             {/* Mobile Footer Area */}
-            <div className="border-t border-slate-100 pt-4 space-y-2">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate('/profil');
-                }}
-                className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 rounded-xl text-center hover:bg-slate-100 transition-colors"
-              >
-                Profilim
-              </button>
-              <button
-                onClick={handleLogoutClick}
-                className="w-full py-2.5 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl text-center transition-colors cursor-pointer"
-              >
-                Çıkış Yap
-              </button>
+            <div className="border-t border-slate-100 pt-4">
+              {user ? (
+                <div className="space-y-2">
+                  {/* Mobile Messages Shortcut */}
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setInboxOpen(true);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      <MessageCircle className="w-4 h-4 text-slate-500" />
+                      <span>Mesajlarım</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      3
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate('/profil');
+                    }}
+                    className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 rounded-xl text-center hover:bg-slate-100 transition-colors"
+                  >
+                    Profilim
+                  </button>
+                  <button
+                    onClick={handleLogoutClick}
+                    className="w-full py-2.5 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl text-center transition-colors cursor-pointer"
+                  >
+                    Çıkış Yap
+                  </button>
+                </div>
+              ) : (
+                <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2">
+                  <p className="text-xs font-bold text-slate-900">Ziyaretçi Modu</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    DPÜ Kampüs modüllerine erişmek için öğrenci hesabınızla giriş yapın.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setAuthInitialTab('login');
+                        navigate('/auth');
+                      }}
+                      className="py-2 text-center text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 cursor-pointer"
+                    >
+                      Giriş Yap
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setAuthInitialTab('register');
+                        navigate('/auth');
+                      }}
+                      className="py-2 text-center text-xs font-semibold text-white bg-[#0F172A] hover:bg-emerald-700 rounded-xl shadow-xs cursor-pointer"
+                    >
+                      Kayıt Ol
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
