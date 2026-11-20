@@ -622,33 +622,33 @@ export default function HomePage() {
         <div className="space-y-5">
           {/* ── ROW 1: FULL-WIDTH CAMPUS HERO BANNER (2.5s Auto Slideshow) ── */}
           <div className="rounded-2xl overflow-hidden relative bg-[#091526] min-h-[260px] sm:min-h-[290px] flex items-center shadow-lg border border-slate-800/80">
-            {/* Right-Side Campus Photo Slideshow & Multi-Stop Gradient Blend */}
-            <div className="absolute inset-y-0 right-0 w-full lg:w-[62%] h-full overflow-hidden pointer-events-none">
+            {/* Campus Photo Slideshow (Spans full banner width, focal point centered/right) */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
               {CAMPUS_SLIDES.map((src, idx) => (
                 <img
                   key={src}
                   src={src}
                   alt={`DPÜ Yerleşkesi Fotoğrafı ${idx + 1}`}
-                  className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-all duration-1000 ease-in-out ${
+                  className={`absolute inset-0 w-full h-full object-cover object-right sm:object-[75%_center] pointer-events-none transition-all duration-1000 ease-in-out ${
                     bgSlide === idx ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
                   }`}
                 />
               ))}
 
-              {/* Smooth multi-stop horizontal gradient fade into dark navy on the left */}
+              {/* Smooth multi-stop horizontal gradient fade shifted left so photos are clearly visible */}
               <div
-                className="absolute inset-0 bg-gradient-to-r from-[#091526] via-[#091526]/90 via-30% to-transparent pointer-events-none"
+                className="absolute inset-0 pointer-events-none hidden sm:block [background:linear-gradient(90deg,#091526_0%,#091526_22%,rgba(9,21,38,0.85)_32%,rgba(9,21,38,0.15)_42%,transparent_50%)]"
                 aria-hidden="true"
               />
-              {/* Subtle bottom gradient for mobile readability */}
+              {/* Mobile multi-stop gradient for text legibility on narrow screens */}
               <div
-                className="absolute inset-0 bg-gradient-to-t from-[#091526]/95 via-transparent to-transparent lg:hidden pointer-events-none"
+                className="absolute inset-0 pointer-events-none sm:hidden [background:linear-gradient(180deg,#091526_0%,#091526_45%,rgba(9,21,38,0.65)_70%,transparent_100%)]"
                 aria-hidden="true"
               />
             </div>
 
             {/* Left Content Stack */}
-            <div className="relative z-10 p-6 sm:p-9 max-w-xl">
+            <div className="relative z-10 p-6 sm:p-9 max-w-lg lg:max-w-[460px]">
               {/* Two-line Bold Headline */}
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
                 <span className="block text-white">DPÜ Kampüs'e</span>
@@ -722,7 +722,7 @@ export default function HomePage() {
             </div>
 
             {/* Bottom-Right Interactive Slide Dots */}
-            <div className="absolute bottom-4 right-5 z-10 flex items-center gap-1.5">
+            <div className="absolute bottom-4 right-5 z-10 flex items-center gap-1.5 bg-black/30 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10">
               {CAMPUS_SLIDES.map((_, idx) => (
                 <button
                   key={idx}
