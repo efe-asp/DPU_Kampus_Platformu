@@ -15,7 +15,7 @@ builder.Services.AddControllersWithViews()
 
 // 2. Add DbContext with SQL Server 2022
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Server=localhost;Database=DpuKampusDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;";
+    ?? "Server=.\\SQLEXPRESS;Database=DpuKampusDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
