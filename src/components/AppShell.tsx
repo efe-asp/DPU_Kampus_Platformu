@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import NewListingModal from './NewListingModal';
 import ChatDrawer from './ChatDrawer';
+import Footer from './Footer';
 import type { ListingDTO, User } from '../types';
 
 const LEFT_NAV_ITEMS = [
@@ -375,6 +376,9 @@ export default function AppShell() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 pb-20 md:pb-10 min-w-0">
         <Outlet context={{ onOpenNewListing: () => setNewListingModalOpen(true) }} />
       </main>
+
+      {/* ── PERSISTENT GLOBAL FOOTER ── */}
+      <Footer />
 
       {/* ── LOGOUT CONFIRMATION MODAL ── */}
       {logoutModalOpen && (
