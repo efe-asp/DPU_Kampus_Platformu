@@ -7,7 +7,6 @@ import {
   BookOpen,
   MapPin,
   BadgeCheck,
-  Plus,
   MessageCircle,
   ChevronDown,
   LogOut,
@@ -15,47 +14,44 @@ import {
   ShieldCheck,
   Menu,
   X,
-  Sparkles,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import NewListingModal from './NewListingModal';
 import ChatDrawer from './ChatDrawer';
 import type { ListingDTO, User } from '../types';
 
-const NAV_ITEMS = [
+const LEFT_NAV_ITEMS = [
   {
     to: '/pazar',
     label: 'Kampüs Pazarı',
-    description: 'İkinci El & Askıda',
     icon: ShoppingBag,
   },
   {
     to: '/topluluklar',
-    label: 'Topluluklar & Etkinlik',
-    description: 'Kulüpler & Zirveler',
+    label: 'Topluluklar',
     icon: Users,
   },
   {
     to: '/kayip-buluntu',
     label: 'Kayıp & Buluntu',
-    description: 'Kampüs Panosu',
     icon: SearchIcon,
   },
+];
+
+const RIGHT_NAV_ITEMS = [
   {
     to: '/notlar',
     label: 'Ders Notu & Ekip',
-    description: 'Çıkmışlar & Projeler',
     icon: BookOpen,
   },
   {
     to: '/radar',
     label: 'Kampüs Radar',
-    description: 'Yemekhane & Yol',
     icon: MapPin,
   },
 ];
+
+const ALL_NAV_ITEMS = [...LEFT_NAV_ITEMS, ...RIGHT_NAV_ITEMS];
 
 export default function AppShell() {
   const { user, logout, setIsExitingPortal } = useAuth();
@@ -65,9 +61,7 @@ export default function AppShell() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [newListingModalOpen, setNewListingModalOpen] = useState(false);
-  const [globalSearch, setGlobalSearch] = useState('');
   const [inboxOpen, setInboxOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -111,351 +105,278 @@ export default function AppShell() {
     verifiedStudent: true,
   };
 
+  const isHome = location.pathname === '/';
+
   return (
     <div className="min-h-screen bg-[#F7F7F5] flex flex-col font-sans">
-      {/* 1. TOP STICKY UTILITY BAR (56px) */}
-      <header className="sticky top-0 z-40 h-14 bg-white border-b border-[#E4E4E7] px-4 sm:px-6 flex items-center justify-between gap-4">
-        {/* Left: Mobile Toggle & Brand */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 rounded-lg text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] lg:hidden"
-            aria-label="Menüyü Aç"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2.5 text-left group cursor-pointer"
-            title="DPÜ Kampüs Ana Sayfa"
-          >
-            <img
-              src="/images/dpu-logo.png"
-              alt="DPÜ Amblem"
-              className="w-9 h-9 rounded-full object-cover bg-white ring-2 ring-zinc-200/80 shadow-xs group-hover:ring-[#18181B] transition-all"
-            />
-            <div className="hidden sm:block">
-              <span className="text-sm font-bold tracking-tight text-[#18181B] block leading-none">DPÜ Kampüs</span>
-              <span className="text-[10px] text-[#71717A] leading-none mt-0.5 block">Dumlupınar Üniversitesi</span>
-            </div>
-          </button>
-        </div>
-
-        {/* Center: Global Search Input */}
-        <div className="flex-1 max-w-xl mx-2">
-          <div className="relative">
-            <SearchIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717A]" />
-            <input
-              type="text"
-              placeholder="İlan, ders notu, topluluk veya kayıp eşya ara..."
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && globalSearch.trim()) {
-                  navigate(`/pazar?q=${encodeURIComponent(globalSearch.trim())}`);
-                }
-              }}
-              className="w-full pl-9 pr-4 py-2 bg-[#F7F7F5] border border-[#E4E4E7] rounded-xl text-xs sm:text-sm text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#18181B] focus:bg-white transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Right: Yeni Paylaşım, Inbox, Profile */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={() => setNewListingModalOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-semibold rounded-xl transition-colors shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Yeni Paylaşım</span>
-          </button>
-
-          <button
-            onClick={() => setInboxOpen(true)}
-            className="relative p-2 rounded-xl text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors"
-            title="Mesajlar"
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#0F766E] ring-2 ring-white" />
-          </button>
-
-          <div className="relative" ref={dropdownRef}>
+      {/* ── SYMMETRICAL STICKY TOP HEADER (h-20, Centered Stacked Logo) ── */}
+      <header className="sticky top-0 z-40 h-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center max-w-7xl mx-auto h-full w-full">
+          
+          {/* ── LEFT COLUMN: 3 Navigation Items Aligned Right Toward Center Logo ── */}
+          <div className="flex items-center justify-start md:justify-end gap-1.5 lg:gap-2 pr-0 md:pr-6">
+            {/* Mobile Hamburger Toggle (md:hidden) */}
             <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1 rounded-xl border border-[#E4E4E7] hover:border-[#18181B] bg-white transition-colors"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors md:hidden cursor-pointer"
+              aria-label="Menüyü Aç"
             >
-              <div className="w-7 h-7 rounded-lg bg-[#18181B] text-white flex items-center justify-center text-xs font-bold">
-                {user?.fullName ? user.fullName.charAt(0) : 'E'}
-              </div>
-              <div className="hidden md:flex flex-col text-left">
-                <span className="text-xs font-semibold text-[#18181B] leading-tight">{user?.fullName || 'Efe Alsaç'}</span>
-                <span className="text-[10px] text-[#0F766E] font-medium leading-tight flex items-center gap-0.5">
-                  <BadgeCheck className="w-2.5 h-2.5" />
-                  Doğrulanmış Öğrenci
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-[#71717A]" />
+              <Menu className="w-5 h-5" />
             </button>
 
-            {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border border-[#E4E4E7] rounded-xl shadow-lg p-2 z-50">
-                <div className="p-2.5 border-b border-[#E4E4E7] mb-1">
-                  <p className="text-xs font-bold text-[#18181B] truncate">{user?.fullName || 'Efe Alsaç'}</p>
-                  <p className="text-[11px] text-[#71717A] truncate font-mono mt-0.5">{user?.email || 'efe.alsac@ogr.dpu.edu.tr'}</p>
-                  <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-[#0F766E] bg-[#CCFBF1] px-2 py-0.5 rounded-full border border-[#99F6E4]">
-                    <ShieldCheck className="w-3 h-3" />
-                    DPÜ Onaylı Hesap
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => { setProfileDropdownOpen(false); navigate('/profil'); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#18181B] hover:bg-[#F4F4F5] rounded-lg transition-colors"
-                >
-                  <UserIcon className="w-4 h-4 text-[#71717A]" />
-                  Profilim &amp; İlanlarım
-                </button>
-
-                <button
-                  onClick={() => { setProfileDropdownOpen(false); setNewListingModalOpen(true); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#18181B] hover:bg-[#F4F4F5] rounded-lg transition-colors sm:hidden"
-                >
-                  <Plus className="w-4 h-4 text-[#71717A]" />
-                  Yeni Paylaşım Yap
-                </button>
-
-                <div className="border-t border-[#E4E4E7] my-1" />
-
-                <button
-                  onClick={handleLogoutClick}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Güvenli Çıkış Yap
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* 2. BODY LAYOUT */}
-      <div className="flex-1 flex max-w-[1600px] w-full mx-auto">
-
-        {/* DESKTOP SIDEBAR — collapsible */}
-        <aside
-          className={`hidden lg:flex flex-col bg-white border-r border-[#E4E4E7] p-3 shrink-0 transition-all duration-200 ${
-            isSidebarCollapsed ? 'w-[76px]' : 'w-[250px]'
-          }`}
-        >
-          {/* Top section */}
-          <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
-            {/* Campus chip */}
-            {isSidebarCollapsed ? (
-              /* Collapsed: compact centered pin */
-              <div className="flex justify-center py-1">
-                <div
-                  className="w-10 h-10 rounded-xl bg-[#F7F7F5] border border-[#E4E4E7] flex items-center justify-center cursor-default"
-                  title="Evliya Çelebi Kampüsü"
-                >
-                  <span className="text-[10px] font-bold text-[#18181B]">EÇ</span>
-                </div>
-              </div>
-            ) : (
-              /* Expanded: full campus card */
-              <div className="bg-[#F7F7F5] border border-[#E4E4E7] rounded-xl p-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#71717A] block mb-1">Kayıtlı Yerleşke</span>
-                <p className="text-xs font-bold text-[#18181B]">Evliya Çelebi Kampüsü</p>
-                <p className="text-[11px] text-[#71717A] mt-0.5">{user?.faculty || 'Mühendislik Fakültesi'}</p>
-              </div>
-            )}
-
-            {/* Core Nav Modules */}
-            <nav className="space-y-0.5">
-              {NAV_ITEMS.map((item) => {
+            {/* Desktop Left 3 Nav Items */}
+            <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+              {LEFT_NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname.startsWith(item.to);
-
-                if (isSidebarCollapsed) {
-                  return (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      title={item.label}
-                      className={`flex items-center justify-center w-full h-10 rounded-xl transition-colors ${
-                        isActive
-                          ? 'bg-[#18181B] text-white shadow-sm'
-                          : 'text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5]'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 shrink-0" />
-                    </NavLink>
-                  );
-                }
+                const isActive = !isHome && location.pathname.startsWith(item.to);
 
                 return (
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-colors group ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-[#18181B] text-white shadow-sm font-semibold'
-                        : 'text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] font-medium'
+                        ? 'bg-slate-900 text-white shadow-xs font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#71717A] group-hover:text-[#18181B]'}`} />
-                    <div className="min-w-0">
-                      <span className="block truncate leading-tight">{item.label}</span>
-                      <span className="block text-[10px] truncate leading-tight mt-0.5 text-[#A1A1AA]">
-                        {item.description}
-                      </span>
-                    </div>
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{item.label}</span>
                   </NavLink>
                 );
               })}
             </nav>
           </div>
 
-          {/* Bottom: footer info (expanded only) + collapse toggle */}
-          <div className="mt-auto pt-4 border-t border-slate-200/80">
-            {!isSidebarCollapsed && (
-              <div className="mb-3 space-y-1.5">
-                <div className="flex items-center gap-2 text-[11px] text-[#71717A]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#0F766E]" />
-                  <span>Dumlupınar Öğrenci Ağı</span>
-                </div>
-                <p className="text-[10px] text-[#A1A1AA]">Kütahya Dumlupınar Üniversitesi · DPÜ Kampüs v1.0</p>
+          {/* ── CENTER COLUMN: Mathematically Centered Stacked Logo (Text Below Logo) ── */}
+          <div className="flex items-center justify-center px-2 sm:px-4">
+            <button
+              onClick={() => navigate('/')}
+              className="flex flex-col items-center justify-center gap-1 cursor-pointer group select-none text-center"
+              title="DPÜ Kampüs Ana Sayfa"
+            >
+              <img
+                src="/images/dpu-logo.png"
+                alt="DPÜ Logo"
+                className="w-10 h-10 rounded-full object-cover shadow-xs ring-1 ring-slate-200 group-hover:scale-105 group-hover:ring-slate-400 transition-all"
+              />
+              <div className="flex flex-col items-center">
+                <span className="text-sm font-extrabold tracking-tight text-slate-900 leading-none group-hover:text-emerald-700 transition-colors">
+                  DPÜ Kampüs
+                </span>
+                <span className="text-[10px] font-medium text-slate-500 leading-none mt-0.5">
+                  Dumlupınar Üniversitesi
+                </span>
               </div>
-            )}
-
-            {/* Toggle button */}
-            {isSidebarCollapsed ? (
-              <button
-                onClick={() => setIsSidebarCollapsed(false)}
-                title="Menüyü Genişlet"
-                className="w-full flex items-center justify-center h-9 rounded-xl text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors"
-              >
-                <PanelLeftOpen className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                onClick={() => setIsSidebarCollapsed(true)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors text-xs font-medium"
-              >
-                <PanelLeftClose className="w-4 h-4 shrink-0" />
-                <span>Menüyü Daralt</span>
-              </button>
-            )}
+            </button>
           </div>
-        </aside>
 
-        {/* MOBILE DRAWER NAV */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex">
-            <div
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-            <div className="relative bg-white w-64 h-full p-4 flex flex-col justify-between border-r border-[#E4E4E7] z-50">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#E4E4E7]">
-                  <button
-                    onClick={() => { setMobileMenuOpen(false); navigate('/'); }}
-                    className="text-sm font-bold text-[#18181B] text-left cursor-pointer"
+          {/* ── RIGHT COLUMN: 2 Navigation Items + Profile Dropdown ── */}
+          <div className="flex items-center justify-end md:justify-between pl-0 md:pl-6">
+            {/* Desktop Right 2 Nav Items */}
+            <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+              {RIGHT_NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const isActive = !isHome && location.pathname.startsWith(item.to);
+
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all ${
+                      isActive
+                        ? 'bg-slate-900 text-white shadow-xs font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    }`}
                   >
-                    DPÜ Kampüs
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </NavLink>
+                );
+              })}
+            </nav>
+
+            {/* Profile Dropdown (Far Right) */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-slate-200 hover:border-slate-400 bg-white shadow-xs transition-colors cursor-pointer"
+              >
+                <div className="w-7 h-7 rounded-lg bg-[#0F172A] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  {user?.fullName ? user.fullName.charAt(0) : 'E'}
+                </div>
+                <div className="hidden lg:flex flex-col text-left">
+                  <span className="text-xs font-bold text-slate-900 leading-tight">
+                    {user?.fullName || 'Efe Alsaç'}
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-medium leading-tight flex items-center gap-0.5">
+                    <BadgeCheck className="w-2.5 h-2.5" />
+                    Doğrulanmış Öğrenci
+                  </span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {profileDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-fadeIn">
+                  {/* Student Info Box */}
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl mb-1.5">
+                    <p className="text-xs font-bold text-slate-900 truncate">
+                      {user?.fullName || 'Efe Alsaç'}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate font-mono mt-0.5">
+                      {user?.email || 'efe.alsac@ogr.dpu.edu.tr'}
+                    </p>
+                    <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/70">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                      DPÜ Onaylı Hesap
+                    </span>
+                  </div>
+
+                  {/* 1. Profilim & İlanlarım */}
+                  <button
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      navigate('/profil');
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer text-left"
+                  >
+                    <UserIcon className="w-4 h-4 text-slate-500 shrink-0" />
+                    <span>Profilim &amp; İlanlarım</span>
                   </button>
-                  <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#71717A]">
-                    <X className="w-4 h-4" />
+
+                  {/* 2. Mesajlarım (with green unread count pill badge) */}
+                  <button
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      setInboxOpen(true);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer text-left"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <MessageCircle className="w-4 h-4 text-slate-500 shrink-0" />
+                      <span>Mesajlarım</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      3
+                    </span>
+                  </button>
+
+                  <div className="border-t border-slate-100 my-1" />
+
+                  {/* 3. Güvenli Çıkış Yap */}
+                  <button
+                    onClick={handleLogoutClick}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer text-left"
+                  >
+                    <LogOut className="w-4 h-4 shrink-0" />
+                    <span>Güvenli Çıkış Yap</span>
                   </button>
                 </div>
-
-                <nav className="space-y-1">
-                  {NAV_ITEMS.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname.startsWith(item.to);
-                    return (
-                      <NavLink
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold ${
-                          isActive
-                            ? 'bg-[#18181B] text-white'
-                            : 'text-[#71717A] hover:bg-[#F4F4F5] hover:text-[#18181B]'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <div>
-                          <span>{item.label}</span>
-                          <span className="block text-[10px] font-normal text-[#A1A1AA]">{item.description}</span>
-                        </div>
-                      </NavLink>
-                    );
-                  })}
-                </nav>
-              </div>
-
-              <div className="border-t border-[#E4E4E7] pt-4">
-                <button
-                  onClick={() => { setMobileMenuOpen(false); navigate('/profil'); }}
-                  className="w-full py-2 px-3 mb-2 bg-[#F7F7F5] border border-[#E4E4E7] text-xs font-semibold text-[#18181B] rounded-xl text-center"
-                >
-                  Profilim
-                </button>
-                <button
-                  onClick={handleLogoutClick}
-                  className="w-full py-2 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl text-center cursor-pointer"
-                >
-                  Çıkış Yap
-                </button>
-              </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
+      </header>
 
-        {/* MAIN OUTLET CONTAINER */}
-        <main className="flex-1 pb-16 lg:pb-8 min-w-0">
-          <Outlet context={{ onOpenNewListing: () => setNewListingModalOpen(true) }} />
-        </main>
-      </div>
+      {/* ── MOBILE DRAWER NAVIGATION (md:hidden) ── */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="relative bg-white w-72 h-full p-5 flex flex-col justify-between border-r border-slate-200 z-50 shadow-2xl">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/');
+                  }}
+                  className="flex items-center gap-2 text-left cursor-pointer"
+                >
+                  <img src="/images/dpu-logo.png" alt="DPÜ Logo" className="w-8 h-8 rounded-full object-cover" />
+                  <div>
+                    <span className="text-sm font-bold text-slate-900 block leading-tight">DPÜ Kampüs</span>
+                    <span className="text-[10px] text-slate-500">Dumlupınar Üniversitesi</span>
+                  </div>
+                </button>
+                <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-      {/* MOBILE BOTTOM NAVIGATION BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-[#E4E4E7] flex items-center justify-around px-2 z-30">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.to);
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium transition-colors ${
-                isActive ? 'text-[#18181B] font-bold' : 'text-[#71717A]'
-              }`}
-            >
-              <Icon className={`w-4 h-4 mb-0.5 ${isActive ? 'text-[#18181B]' : 'text-[#71717A]'}`} />
-              <span className="truncate max-w-[56px] text-center">{item.label.split(' ')[0]}</span>
-            </NavLink>
-          );
-        })}
-      </div>
+              {/* Mobile Nav Links */}
+              <nav className="space-y-1">
+                {ALL_NAV_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = !isHome && location.pathname.startsWith(item.to);
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                        isActive
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </nav>
 
-      {/* Global New Listing Modal */}
-      <NewListingModal
-        open={newListingModalOpen}
-        onClose={() => setNewListingModalOpen(false)}
-        onCreated={handleListingCreated}
-      />
+              {/* Mobile Messages Shortcut */}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setInboxOpen(true);
+                }}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="w-4 h-4 text-slate-500" />
+                  <span>Mesajlarım</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                  3
+                </span>
+              </button>
+            </div>
 
-      {/* Global Inbox / Chat Drawer */}
-      <ChatDrawer
-        open={inboxOpen}
-        onClose={() => setInboxOpen(false)}
-        participant={dummyParticipant}
-      />
+            {/* Mobile Footer Area */}
+            <div className="border-t border-slate-100 pt-4 space-y-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate('/profil');
+                }}
+                className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 rounded-xl text-center hover:bg-slate-100 transition-colors"
+              >
+                Profilim
+              </button>
+              <button
+                onClick={handleLogoutClick}
+                className="w-full py-2.5 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl text-center transition-colors cursor-pointer"
+              >
+                Çıkış Yap
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Logout Confirmation Modal */}
+      {/* ── MAIN CONTENT CONTAINER (Full Width, Centered, Zero Left Sidebar) ── */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 pb-20 md:pb-10 min-w-0">
+        <Outlet context={{ onOpenNewListing: () => setNewListingModalOpen(true) }} />
+      </main>
+
+      {/* ── LOGOUT CONFIRMATION MODAL ── */}
       {logoutModalOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
@@ -494,6 +415,20 @@ export default function AppShell() {
           </div>
         </div>
       )}
+
+      {/* Global New Listing Modal */}
+      <NewListingModal
+        open={newListingModalOpen}
+        onClose={() => setNewListingModalOpen(false)}
+        onCreated={handleListingCreated}
+      />
+
+      {/* Global Inbox / Chat Drawer */}
+      <ChatDrawer
+        open={inboxOpen}
+        onClose={() => setInboxOpen(false)}
+        participant={dummyParticipant}
+      />
     </div>
   );
 }
