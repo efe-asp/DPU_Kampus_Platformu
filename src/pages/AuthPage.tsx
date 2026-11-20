@@ -316,14 +316,14 @@ export default function AuthPage() {
     try {
       const response = await ApiService.login({ email: loginEmail, password: loginPassword });
       setIsEnteringPortal(true);
-      login(response.user, response.token);
-      if (!rememberMe) {
-        localStorage.removeItem('dpu_token');
-        localStorage.removeItem('dpu_user');
-      }
       setTimeout(() => {
+        login(response.user, response.token);
+        if (!rememberMe) {
+          localStorage.removeItem('dpu_token');
+          localStorage.removeItem('dpu_user');
+        }
         setIsEnteringPortal(false);
-      }, 1500);
+      }, 2400);
     } catch (err: any) {
       setError(err?.message || 'Giriş yapılırken bir hata oluştu. Bilgilerinizi kontrol edin.');
     } finally {
@@ -380,10 +380,10 @@ export default function AuthPage() {
     try {
       const response = await ApiService.verifyEmailCode(pendingEmail, code);
       setIsEnteringPortal(true);
-      login(response.user, response.token);
       setTimeout(() => {
+        login(response.user, response.token);
         setIsEnteringPortal(false);
-      }, 1500);
+      }, 2400);
     } catch (err: any) {
       setError(err?.message || 'Doğrulama kodu hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
     } finally {

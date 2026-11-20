@@ -5,9 +5,9 @@ export function PortalSplashOverlay() {
   return (
     <motion.div
       key="portal-splash-overlay"
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.03 }}
+      exit={{ opacity: 0, scale: 1.02 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="fixed inset-0 z-50 bg-[#091526] flex flex-col items-center justify-center select-none overflow-hidden"
     >
@@ -45,7 +45,7 @@ export function PortalSplashOverlay() {
         <motion.h1
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12, duration: 0.35 }}
+          transition={{ delay: 0.1, duration: 0.35 }}
           className="text-3xl font-extrabold tracking-tight text-white mt-5"
         >
           DPÜ Kampüs
@@ -54,19 +54,19 @@ export function PortalSplashOverlay() {
         <motion.p
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.22, duration: 0.35 }}
+          transition={{ delay: 0.18, duration: 0.35 }}
           className="text-sm font-medium text-slate-300 mt-1"
         >
           Kütahya Dumlupınar Üniversitesi
         </motion.p>
 
-        {/* Sleek Progress Bar Track & Status Text */}
+        {/* Sleek Progress Bar Track & Status Text (Fills over 2.3s for 2.4s total splash) */}
         <div className="flex flex-col items-center mt-6">
           <div className="w-56 h-1.5 bg-white/10 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: '0%' }}
               animate={{ width: '100%' }}
-              transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 2.3, ease: [0.16, 1, 0.3, 1] }}
               className="h-full bg-[#10B981] rounded-full shadow-[0_0_12px_rgba(16,185,129,0.6)]"
             />
           </div>
@@ -74,7 +74,7 @@ export function PortalSplashOverlay() {
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.28, duration: 0.35 }}
+            transition={{ delay: 0.25, duration: 0.35 }}
             className="text-xs text-slate-400 font-medium mt-3"
           >
             Öğrenci oturumu hazırlanıyor...
