@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   BadgeCheck,
   UserCheck,
+  Users,
   EyeOff,
   Flame,
   Clock,
@@ -68,6 +69,8 @@ export default function ForumPage() {
   // State
   const [posts, setPosts] = useState<ForumPostDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedTab, setFeedTab] = useState<'foryou' | 'following'>('foryou');
+  const [followedUserIds, setFollowedUserIds] = useState<string[]>(['u2', 'u3', 'u4']);
   const [selectedTopic, setSelectedTopic] = useState<string>('Tümü');
   const [sortOrder, setSortOrder] = useState<'latest' | 'popular'>('latest');
 
@@ -237,6 +240,11 @@ export default function ForumPage() {
   const remainingChars = 500 - charLength;
   const charPercent = Math.min(100, (charLength / 500) * 100);
 
+  // Filtered posts based on active feed tab ("Size Özel" vs "Takip Ettiklerin")
+  const displayedPosts = feedTab === 'following'
+    ? posts.filter((p) => !p.isAnonymous && (followedUserIds.includes(p.author?.id) || p.author?.id === 'u2' || p.author?.id === 'u3'))
+    : posts;
+
   return (
     <div className="max-w-3xl mx-auto space-y-6 py-2 px-2 sm:px-0 font-sans">
       {/* Toast Notification */}
@@ -247,39 +255,39 @@ export default function ForumPage() {
         </div>
       )}
 
-      {/* ── TOP HERO HEADER ── */}
-      <div className="bg-gradient-to-r from-[#0B192C] via-[#0F172A] to-[#1E293B] rounded-3xl p-6 sm:p-7 text-white shadow-xl border border-white/10 relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05] pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(#FFFFFF 1px, transparent 1px)`,
-            backgroundSize: '16px 16px',
-          }}
-        />
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold mb-2.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Canlı Kampüs Akışı</span>
-              <span className="text-white/40">•</span>
-              <span>Kütahya DPÜ</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
-              <MessageSquareText className="w-7 h-7 text-emerald-400" />
-              <span>DPÜ Kampüs Forumu</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
-              Dersler, vize-finaller, yemekhane, Kütahya ulaşımı ve kampüs yaşamı hakkında öğrencilerle anında fikir paylaşın, sorularınıza yanıt bulun.
-            </p>
-          </div>
+      {/* ── TWITTER/X STYLE FEED SWITCHER ("Size Özel" & "Takip Ettiklerin") ── */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs flex items-center overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setFeedTab('foryou')}
+          className={`flex-1 py-3.5 text-center text-sm transition-all relative cursor-pointer ${
+            feedTab === 'foryou'
+              ? 'text-slate-900 font-bold bg-white'
+              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50/70 font-medium'
+          }`}
+        >
+          <span>Size Özel</span>
+          {feedTab === 'foryou' && (
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-emerald-600 rounded-full" />
+          )}
+        </button>
 
-          <div className="flex sm:flex-col items-center sm:items-end justify-between shrink-0 bg-white/5 border border-white/10 rounded-2xl p-3.5 px-4 backdrop-blur-sm">
-            <span className="text-[11px] text-slate-400 font-medium">Toplam Paylaşım</span>
-            <span className="text-xl sm:text-2xl font-black text-white tabular-nums">
-              {posts.length > 0 ? posts.length + 140 : 142}
-            </span>
-          </div>
-        </div>
+        <div className="h-6 w-px bg-slate-200" />
+
+        <button
+          type="button"
+          onClick={() => setFeedTab('following')}
+          className={`flex-1 py-3.5 text-center text-sm transition-all relative cursor-pointer ${
+            feedTab === 'following'
+              ? 'text-slate-900 font-bold bg-white'
+              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50/70 font-medium'
+          }`}
+        >
+          <span>Takip Ettiklerin</span>
+          {feedTab === 'following' && (
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-1 bg-emerald-600 rounded-full" />
+          )}
+        </button>
       </div>
 
       {/* ── POST COMPOSER BOX (Twitter/X Style) ── */}
@@ -486,17 +494,36 @@ export default function ForumPage() {
           <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-3" />
           <p className="text-xs font-semibold text-slate-600">Kampüs forumu yükleniyor...</p>
         </div>
-      ) : posts.length === 0 ? (
+      ) : displayedPosts.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 shadow-xs">
-          <MessageSquareText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-slate-800">Henüz Bu Konuda Paylaşım Yok</h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            İlk gönderiyi yukarıdaki kutudan yazarak kampüs tartışmasını başlatın.
-          </p>
+          {feedTab === 'following' ? (
+            <>
+              <Users className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-sm font-bold text-slate-800">Takip Ettiğin Gönderi Bulunmuyor</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                Takip ettiğin öğrencilerin ve toplulukların paylaşımları burada listelenir.
+              </p>
+              <button
+                type="button"
+                onClick={() => setFeedTab('foryou')}
+                className="mt-4 px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                Size Özel Akışına Dön
+              </button>
+            </>
+          ) : (
+            <>
+              <MessageSquareText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-sm font-bold text-slate-800">Henüz Bu Konuda Paylaşım Yok</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                İlk gönderiyi yukarıdaki kutudan yazarak kampüs tartışmasını başlatın.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <div className="space-y-4">
-          {posts.map((post) => {
+          {displayedPosts.map((post) => {
             const isCommentsExpanded = !!expandedComments[post.id];
             const badgeStyle = TOPIC_BADGE_STYLES[post.topic] || TOPIC_BADGE_STYLES['#Genel'];
             const postComments = post.comments || [];
