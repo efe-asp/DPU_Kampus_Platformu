@@ -12,14 +12,16 @@ import NotlarPage from './pages/NotlarPage';
 import RadarPage from './pages/RadarPage';
 import ProfilPage from './pages/ProfilPage';
 import PortalSplashOverlay from './components/PortalSplashOverlay';
+import ExitSplashOverlay from './components/ExitSplashOverlay';
 
 export default function App() {
-  const { isAuthenticated, isEnteringPortal } = useAuth();
+  const { isAuthenticated, isEnteringPortal, isExitingPortal } = useAuth();
 
   return (
     <>
       <AnimatePresence>
         {isEnteringPortal && <PortalSplashOverlay key="portal-splash" />}
+        {isExitingPortal && <ExitSplashOverlay key="exit-splash" />}
       </AnimatePresence>
 
       {!isAuthenticated ? (

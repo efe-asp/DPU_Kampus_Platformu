@@ -10,6 +10,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isEnteringPortal: boolean;
   setIsEnteringPortal: (v: boolean) => void;
+  isExitingPortal: boolean;
+  setIsExitingPortal: (v: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -24,6 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(getStoredUser);
   const [token, setTokenState] = useState<string | null>(getToken);
   const [isEnteringPortal, setIsEnteringPortal] = useState(false);
+  const [isExitingPortal, setIsExitingPortal] = useState(false);
 
   useEffect(() => {
     // If user has token but no stored user, or vice versa, sync state
@@ -59,6 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user && !!token,
         isEnteringPortal,
         setIsEnteringPortal,
+        isExitingPortal,
+        setIsExitingPortal,
       }}
     >
       {children}

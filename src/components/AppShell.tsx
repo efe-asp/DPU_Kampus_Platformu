@@ -58,7 +58,7 @@ const NAV_ITEMS = [
 ];
 
 export default function AppShell() {
-  const { user, logout } = useAuth();
+  const { user, logout, setIsExitingPortal } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -68,6 +68,7 @@ export default function AppShell() {
   const [globalSearch, setGlobalSearch] = useState('');
   const [inboxOpen, setInboxOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -85,9 +86,20 @@ export default function AppShell() {
     navigate('/pazar');
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogoutClick = () => {
+    setProfileDropdownOpen(false);
+    setMobileMenuOpen(false);
+    setLogoutModalOpen(true);
+  };
+
+  const handleConfirmLogout = () => {
+    setLogoutModalOpen(false);
+    setIsExitingPortal(true);
+    setTimeout(() => {
+      logout();
+      navigate('/');
+      setIsExitingPortal(false);
+    }, 2400);
   };
 
   const dummyParticipant: User = {
@@ -216,8 +228,8 @@ export default function AppShell() {
                 <div className="border-t border-[#E4E4E7] my-1" />
 
                 <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  onClick={handleLogoutClick}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   Güvenli Çıkış Yap
@@ -393,8 +405,8 @@ export default function AppShell() {
                   Profilim
                 </button>
                 <button
-                  onClick={handleLogout}
-                  className="w-full py-2 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl text-center"
+                  onClick={handleLogoutClick}
+                  className="w-full py-2 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl text-center cursor-pointer"
                 >
                   Çıkış Yap
                 </button>
@@ -442,6 +454,46 @@ export default function AppShell() {
         onClose={() => setInboxOpen(false)}
         participant={dummyParticipant}
       />
+
+      {/* Logout Confirmation Modal */}
+      {logoutModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setLogoutModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center border border-slate-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <LogOut className="w-6 h-6 text-red-600" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 mb-1.5">
+              Oturumu Kapatmak İstiyor Musunuz?
+            </h3>
+            <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+              DPÜ Kampüs oturumunuz güvenli bir şekilde sonlandırılacak. Dilediğiniz zaman öğrenci e-postanızla tekrar giriş yapabilirsiniz.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setLogoutModalOpen(false)}
+                className="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmLogout}
+                className="h-10 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Çıkış Yap</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
