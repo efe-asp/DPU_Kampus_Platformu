@@ -1,0 +1,5 @@
+# Exclude documentation HTML and helper scripts from GitHub language stats
+*.html linguist-detectable=false
+*.py linguist-detectable=false
+DPU_Kampus_Platformu_Tanitim_Raporu.html linguist-generated=true
+DPU_Kampus_Platformu_Tanitim_Raporu.html linguist-detectable=false

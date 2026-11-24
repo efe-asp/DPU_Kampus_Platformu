@@ -31,3 +31,8 @@ obj/
 *.njsproj
 *.sln
 *.sw?
+
+# PDF generation artifacts
+DPU_Kampus_Platformu_Tanitim_Raporu.html
+create_presentation_pdf.py
+
