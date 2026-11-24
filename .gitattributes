@@ -3,3 +3,5 @@
 *.py linguist-detectable=false
 DPU_Kampus_Platformu_Tanitim_Raporu.html linguist-generated=true
 DPU_Kampus_Platformu_Tanitim_Raporu.html linguist-detectable=false
+
+*.pdf binary
