@@ -19,7 +19,12 @@ import {
   Info,
   Laptop,
   CheckCircle2,
+  Sun,
+  Cloud,
   CloudSun,
+  CloudRain,
+  CloudSnow,
+  CloudLightning,
   Heart,
   Eye,
   Utensils,
@@ -27,13 +32,65 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
+// ─── Weather & Istanbul Time Helpers ──────────────────────────────────────────
+interface WeatherData {
+  city: string;
+  temperature: number;
+  condition: string;
+  icon: string;
+}
+
+const OPEN_METEO_URL =
+  'https://api.open-meteo.com/v1/forecast?latitude=39.4811&longitude=29.8986&elevation=970&current=temperature_2m,weather_code&timezone=Europe%2FIstanbul';
+const WTTR_FALLBACK_URL = 'https://wttr.in/Kutahya?format=j1';
+
+function mapWmoWeatherCode(code: number): { condition: string; icon: string } {
+  if (code === 0) return { condition: 'Açık', icon: 'sun' };
+  if (code >= 1 && code <= 3) return { condition: 'Parçalı Bulutlu', icon: 'cloud-sun' };
+  if (code === 45 || code === 48) return { condition: 'Sisli', icon: 'cloud' };
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
+    return { condition: 'Yağmurlu', icon: 'rain' };
+  }
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) {
+    return { condition: 'Karlı', icon: 'snow' };
+  }
+  if (code >= 95 && code <= 99) return { condition: 'Fırtınalı', icon: 'storm' };
+  return { condition: 'Bulutlu', icon: 'cloud' };
+}
+
+const WEATHER_ICON_MAP: Record<string, { Icon: typeof Sun; colorClass: string }> = {
+  sun: { Icon: Sun, colorClass: 'text-amber-300' },
+  'cloud-sun': { Icon: CloudSun, colorClass: 'text-amber-200' },
+  cloud: { Icon: Cloud, colorClass: 'text-slate-300' },
+  rain: { Icon: CloudRain, colorClass: 'text-sky-300' },
+  snow: { Icon: CloudSnow, colorClass: 'text-cyan-200' },
+  storm: { Icon: CloudLightning, colorClass: 'text-yellow-300' },
+};
+
+function getIstanbulHour(date: Date): number {
+  const hourStr = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone: 'Europe/Istanbul',
+  }).format(date);
+  return Number(hourStr) % 24;
+}
+
+function formatIstanbulDate(date: Date): string {
+  return new Intl.DateTimeFormat('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    weekday: 'long',
+    timeZone: 'Europe/Istanbul',
+  }).format(date);
+}
+
 // ─── Time-of-Day Greeting Helper (for Logged-in Student) ──────────────────────
-function getGreeting(fullName?: string): string {
+function getGreeting(fullName: string | undefined, hour: number): string {
   const firstName = fullName ? fullName.trim().split(' ')[0] : 'Öğrenci';
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return `Günaydın, ${firstName}`;
-  if (hour >= 12 && hour < 17) return `İyi öğlenler, ${firstName}`;
-  if (hour >= 17 && hour < 22) return `Hayırlı akşamlar, ${firstName}`;
+  if (hour >= 6 && hour <= 11) return `Günaydın, ${firstName}`;
+  if (hour >= 12 && hour <= 17) return `İyi günler, ${firstName}`;
+  if (hour >= 18 && hour <= 22) return `İyi akşamlar, ${firstName}`;
   return `İyi geceler, ${firstName}`;
 }
 
@@ -272,10 +329,86 @@ export default function HomePage() {
   // Student Mode State
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>(INITIAL_TRENDING_POSTS);
   const [studentEvents, setStudentEvents] = useState<StudentEvent[]>(INITIAL_STUDENT_EVENTS);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
+  const [now, setNow] = useState<Date>(() => new Date());
 
   // Announcements Modal State (Shared)
   const [announcementModalOpen, setAnnouncementModalOpen] = useState(false);
   const [activeAnnouncement, setActiveAnnouncement] = useState<Announcement | null>(null);
+
+  // Fetch Kütahya (DPÜ Evliya Çelebi Yerleşkesi) live weather on mount
+  useEffect(() => {
+    let cancelled = false;
+    const loadWeather = async () => {
+      try {
+        const res = await fetch(OPEN_METEO_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+        const data = await res.json();
+        console.log('Open-Meteo ham API yanıtı:', data);
+
+        const rawTemp = data?.current?.temperature_2m;
+        const rawCode = data?.current?.weather_code;
+        if (typeof rawTemp !== 'number' || typeof rawCode !== 'number') {
+          throw new Error('Open-Meteo current alanları eksik');
+        }
+
+        const { condition, icon } = mapWmoWeatherCode(rawCode);
+        if (!cancelled) {
+          setWeather({
+            city: 'Kütahya',
+            temperature: Math.round(rawTemp),
+            condition,
+            icon,
+          });
+        }
+      } catch (openMeteoError) {
+        console.warn('Open-Meteo isteği başarısız, wttr.in yedeği deneniyor:', openMeteoError);
+        try {
+          const wttrRes = await fetch(WTTR_FALLBACK_URL, { cache: 'no-store' });
+          if (!wttrRes.ok) throw new Error(`wttr.in HTTP ${wttrRes.status}`);
+          const wttrData = await wttrRes.json();
+          console.log('wttr.in ham API yanıtı:', wttrData);
+
+          const rawTempC = wttrData?.current_condition?.[0]?.temp_C;
+          const parsedTemp = Number(rawTempC);
+          if (rawTempC === undefined || Number.isNaN(parsedTemp)) {
+            throw new Error('wttr.in temp_C alanı eksik');
+          }
+
+          if (!cancelled) {
+            setWeather({
+              city: 'Kütahya',
+              temperature: Math.round(parsedTemp),
+              condition: 'Güncel',
+              icon: 'cloud-sun',
+            });
+          }
+        } catch (wttrError) {
+          console.error('wttr.in yedek isteği de başarısız:', wttrError);
+          if (!cancelled) {
+            setWeather(null);
+          }
+        }
+      } finally {
+        if (!cancelled) {
+          setWeatherLoading(false);
+        }
+      }
+    };
+    loadWeather();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Update date and greeting hour every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Auto-advance guest background photos every 2.5 seconds (only when guest)
   useEffect(() => {
@@ -345,6 +478,10 @@ export default function HomePage() {
   };
 
   const currentGuestEvent = GUEST_FEATURED_EVENTS[guestEventSlide];
+  const weatherIconInfo = weather ? (WEATHER_ICON_MAP[weather.icon] ?? WEATHER_ICON_MAP.sun) : WEATHER_ICON_MAP.cloud;
+  const WeatherIcon = weatherIconInfo.Icon;
+  const istanbulDateStr = formatIstanbulDate(now);
+  const istanbulHour = getIstanbulHour(now);
 
   return (
     <div className="w-full font-sans select-none pb-10">
@@ -376,13 +513,29 @@ export default function HomePage() {
               <div className="relative z-10">
                 {/* 1. Kütahya Hava Durumu & Tarih Pill */}
                 <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 rounded-full px-3 py-1 text-xs text-slate-200 w-fit backdrop-blur-sm cursor-default select-none">
-                  <CloudSun className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                  <span>Kütahya • 9°C Açık • 20 Kasım Cuma</span>
+                  {weatherLoading ? (
+                    <>
+                      <CloudSun className="w-3.5 h-3.5 text-slate-300 animate-pulse shrink-0" />
+                      <span>Kütahya • Yükleniyor...</span>
+                    </>
+                  ) : weather ? (
+                    <>
+                      <WeatherIcon className={`w-3.5 h-3.5 ${weatherIconInfo.colorClass} shrink-0`} />
+                      <span>
+                        {weather.city} • {weather.temperature}°C {weather.condition} • {istanbulDateStr}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Cloud className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>Kütahya • Hava durumu alınamadı • {istanbulDateStr}</span>
+                    </>
+                  )}
                 </div>
 
                 {/* 2. Dynamic Time-of-Day Greeting */}
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-3 leading-tight">
-                  {getGreeting(user.fullName)}
+                  {getGreeting(user.fullName, istanbulHour)}
                 </h1>
               </div>
             </div>

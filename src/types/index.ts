@@ -111,9 +111,12 @@ export interface ProjectTeamDTO {
 
 // ========== Cafeteria ==========
 export interface CafeteriaMenuDTO {
+  id?: number;
   date: string;
   courses: string[];
   satisfactionVotes: { liked: number; okay: number; disliked: number; };
+  percentages?: { liked: number; okay: number; disliked: number; };
+  isFallback?: boolean;
   userVote?: 'liked' | 'okay' | 'disliked';
 }
 

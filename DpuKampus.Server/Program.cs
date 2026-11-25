@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using DpuKampus.Server.Data;
+using DpuKampus.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +29,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     });
 });
 
-// 3. Add Memory Cache
+// 3. Add Memory Cache, HttpClient & Background Services
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<MenuScraperBackgroundService>();
 
 // 4. CORS Policy for Vite dev servers (5173, 5174, 8080)
 builder.Services.AddCors(options =>

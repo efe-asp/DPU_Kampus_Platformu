@@ -19,6 +19,7 @@ namespace DpuKampus.Server.Data
         public DbSet<LostFoundItem> LostFoundItems => Set<LostFoundItem>();
         public DbSet<CourseNote> CourseNotes => Set<CourseNote>();
         public DbSet<Report> Reports => Set<Report>();
+        public DbSet<DailyMenu> DailyMenus => Set<DailyMenu>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -80,6 +81,11 @@ namespace DpuKampus.Server.Data
             modelBuilder.Entity<Listing>()
                 .Property(l => l.Price)
                 .HasPrecision(18, 2);
+
+            // DailyMenu unique date index
+            modelBuilder.Entity<DailyMenu>()
+                .HasIndex(m => m.MenuDate)
+                .IsUnique();
         }
     }
 }

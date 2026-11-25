@@ -25,7 +25,7 @@ export default function RadarPage() {
     if (voting) return;
     setVoting(true);
     try {
-      const updated = await ApiService.voteCafeteria(voteType);
+      const updated = await ApiService.voteCafeteria(voteType, menu?.id, menu);
       setMenu(updated);
     } finally {
       setVoting(false);
@@ -47,15 +47,21 @@ export default function RadarPage() {
     ? menu.satisfactionVotes.liked + menu.satisfactionVotes.okay + menu.satisfactionVotes.disliked
     : 0;
 
-  const likedPercent = totalVotes > 0 && menu
-    ? Math.round((menu.satisfactionVotes.liked / totalVotes) * 100)
-    : 0;
-  const okayPercent = totalVotes > 0 && menu
-    ? Math.round((menu.satisfactionVotes.okay / totalVotes) * 100)
-    : 0;
-  const dislikedPercent = totalVotes > 0 && menu
-    ? 100 - likedPercent - okayPercent
-    : 0;
+  const likedPercent = menu?.percentages
+    ? menu.percentages.liked
+    : totalVotes > 0 && menu
+      ? Math.round((menu.satisfactionVotes.liked / totalVotes) * 100)
+      : 0;
+  const okayPercent = menu?.percentages
+    ? menu.percentages.okay
+    : totalVotes > 0 && menu
+      ? Math.round((menu.satisfactionVotes.okay / totalVotes) * 100)
+      : 0;
+  const dislikedPercent = menu?.percentages
+    ? menu.percentages.disliked
+    : totalVotes > 0 && menu
+      ? 100 - likedPercent - okayPercent
+      : 0;
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
@@ -75,11 +81,16 @@ export default function RadarPage() {
               <Utensils className="w-5 h-5 text-[#0F766E]" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-base font-bold text-[#18181B]">Günün DPÜ Yemekhane Menüsü</h2>
                 <span className="text-[10px] font-semibold text-[#0F766E] bg-[#CCFBF1] px-2 py-0.5 rounded-full border border-[#99F6E4]">
                   Merkezi Yemekhane
                 </span>
+                {menu?.isFallback && (
+                  <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    Son Yayınlanan Menü
+                  </span>
+                )}
               </div>
               <p className="text-xs text-[#71717A] mt-0.5">Evliya Çelebi Yerleşkesi · 4 Kap Tabldot</p>
             </div>

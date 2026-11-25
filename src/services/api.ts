@@ -527,8 +527,72 @@ export class ApiService {
   static async getProjects(): Promise<ProjectTeamDTO[]> { await delay(400); return [...MOCK_PROJECTS]; }
 
   // Cafeteria
-  static async getCafeteriaMenu(): Promise<CafeteriaMenuDTO> { await delay(300); return { ...MOCK_CAFETERIA, satisfactionVotes: { ...MOCK_CAFETERIA.satisfactionVotes } }; }
-  static async voteCafeteria(vote: 'liked' | 'okay' | 'disliked'): Promise<CafeteriaMenuDTO> {
+  static async getCafeteriaMenu(): Promise<CafeteriaMenuDTO> {
+    try {
+      const res = await fetch('/api/menu/today', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      return {
+        id: data.id,
+        date: data.menuDate,
+        courses: [data.starter, data.mainCourse, data.sideDish, data.complement],
+        satisfactionVotes: {
+          liked: data.likeCount ?? 0,
+          okay: data.neutralCount ?? 0,
+          disliked: data.dislikeCount ?? 0,
+        },
+        percentages: {
+          liked: data.likePercent ?? 0,
+          okay: data.neutralPercent ?? 0,
+          disliked: data.dislikePercent ?? 0,
+        },
+        isFallback: Boolean(data.isFallback),
+      };
+    } catch {
+      await delay(300);
+      return { ...MOCK_CAFETERIA, satisfactionVotes: { ...MOCK_CAFETERIA.satisfactionVotes } };
+    }
+  }
+
+  static async voteCafeteria(
+    vote: 'liked' | 'okay' | 'disliked',
+    menuId?: number,
+    currentMenu?: CafeteriaMenuDTO | null
+  ): Promise<CafeteriaMenuDTO> {
+    const apiVote = vote === 'liked' ? 'like' : vote === 'okay' ? 'neutral' : 'dislike';
+    if (menuId) {
+      try {
+        const res = await fetch(`/api/menu/${menuId}/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vote: apiVote }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        return {
+          ...(currentMenu ?? {
+            date: new Date().toISOString(),
+            courses: [],
+            satisfactionVotes: { liked: 0, okay: 0, disliked: 0 },
+          }),
+          id: data.id ?? menuId,
+          userVote: vote,
+          satisfactionVotes: {
+            liked: data.likeCount ?? 0,
+            okay: data.neutralCount ?? 0,
+            disliked: data.dislikeCount ?? 0,
+          },
+          percentages: {
+            liked: data.likePercent ?? 0,
+            okay: data.neutralPercent ?? 0,
+            disliked: data.dislikePercent ?? 0,
+          },
+        };
+      } catch {
+        // fallback below
+      }
+    }
+
     await delay(300);
     MOCK_CAFETERIA = { ...MOCK_CAFETERIA, userVote: vote, satisfactionVotes: { ...MOCK_CAFETERIA.satisfactionVotes } };
     if (vote === 'liked') MOCK_CAFETERIA.satisfactionVotes.liked++;

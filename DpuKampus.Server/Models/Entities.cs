@@ -314,4 +314,36 @@ namespace DpuKampus.Server.Models
 
         public bool IsHandled { get; set; } = false;
     }
+
+    public class DailyMenu
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public DateTime MenuDate { get; set; }
+
+        [Required]
+        [MaxLength(200)]
+        public string Starter { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
+        public string MainCourse { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
+        public string SideDish { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
+        public string Complement { get; set; } = string.Empty;
+
+        public int LikeCount { get; set; } = 0;
+
+        public int NeutralCount { get; set; } = 0;
+
+        public int DislikeCount { get; set; } = 0;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }

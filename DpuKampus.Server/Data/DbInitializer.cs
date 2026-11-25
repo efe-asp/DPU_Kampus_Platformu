@@ -14,6 +14,24 @@ namespace DpuKampus.Server.Data
             {
                 logger.LogInformation("Veritabanı bağlantısı kontrol ediliyor ve şema hazırlanıyor...");
                 context.Database.EnsureCreated();
+                context.Database.ExecuteSqlRaw(@"
+                    IF OBJECT_ID(N'[DailyMenus]', N'U') IS NULL
+                    BEGIN
+                        CREATE TABLE [DailyMenus] (
+                            [Id] int NOT NULL IDENTITY,
+                            [MenuDate] datetime2 NOT NULL,
+                            [Starter] nvarchar(200) NOT NULL,
+                            [MainCourse] nvarchar(200) NOT NULL,
+                            [SideDish] nvarchar(200) NOT NULL,
+                            [Complement] nvarchar(200) NOT NULL,
+                            [LikeCount] int NOT NULL DEFAULT 0,
+                            [NeutralCount] int NOT NULL DEFAULT 0,
+                            [DislikeCount] int NOT NULL DEFAULT 0,
+                            [CreatedAt] datetime2 NOT NULL,
+                            CONSTRAINT [PK_DailyMenus] PRIMARY KEY ([Id])
+                        );
+                        CREATE UNIQUE INDEX [IX_DailyMenus_MenuDate] ON [DailyMenus] ([MenuDate]);
+                    END");
 
                 if (context.Users.Any())
                 {
