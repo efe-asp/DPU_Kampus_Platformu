@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { ApiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import EDevletLogo from '../components/EDevletLogo';
 
 // ─── Faculty Data ─────────────────────────────────────────────────────────────
 const FACULTY_GROUPS = [
@@ -741,6 +742,30 @@ export default function AuthPage({ initialTab, onBackToHome }: AuthPageProps = {
                       )}
                     </button>
                   </form>
+
+                  {/* Divider */}
+                  <div className="relative my-3">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div className="w-full border-t border-slate-200" />
+                    </div>
+                    <div className="relative flex justify-center text-[11px]">
+                      <span className="bg-white px-2.5 text-slate-400 font-medium">veya</span>
+                    </div>
+                  </div>
+
+                  {/* E-Devlet İle Giriş */}
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => {
+                      clearErrors();
+                      navigate('/edevlet-giris');
+                    }}
+                    className="w-full h-11 px-4 bg-[#E1252B] hover:bg-[#C61D22] active:scale-[0.99] text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2.5 cursor-pointer"
+                  >
+                    <EDevletLogo className="w-7 h-5 shrink-0" />
+                    <span>E-Devlet İle Giriş</span>
+                  </button>
                 </motion.div>
               )}
 

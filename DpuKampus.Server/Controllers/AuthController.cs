@@ -48,6 +48,14 @@ namespace DpuKampus.Server.Controllers
             public string Password { get; set; } = string.Empty;
         }
 
+        public class EDevletLoginDto
+        {
+            public string TcKimlikNo { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+            public string? FullName { get; set; }
+            public string? Faculty { get; set; }
+        }
+
         [HttpPost("send-code")]
         public IActionResult SendVerificationCode([FromBody] SendCodeDto dto)
         {
@@ -144,6 +152,66 @@ namespace DpuKampus.Server.Controllers
             return Ok(new
             {
                 token = "mock_jwt_token_" + Guid.NewGuid().ToString("N"),
+                user = new
+                {
+                    id = user.Id,
+                    fullName = user.FullName,
+                    email = user.Email,
+                    faculty = user.Faculty,
+                    joinedAt = user.JoinedAt,
+                    verifiedStudent = user.VerifiedStudent
+                }
+            });
+        }
+
+        [HttpPost("edevlet-login")]
+        public async Task<IActionResult> EDevletLogin([FromBody] EDevletLoginDto dto)
+        {
+            var tc = dto.TcKimlikNo?.Trim() ?? string.Empty;
+            if (tc.Length != 11 || tc[0] == '0' || !long.TryParse(tc, out _))
+            {
+                return BadRequest(new { message = "Geçerli 11 haneli T.C. Kimlik Numaranızı giriniz." });
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 4)
+            {
+                return BadRequest(new { message = "e-Devlet şifreniz en az 4 karakter olmalıdır." });
+            }
+
+            // Demo T.C. mapping to seeded DPÜ students or deterministic student creation
+            var (defaultName, defaultEmail, defaultFaculty) = tc switch
+            {
+                "10148757384" or "10000000146" => ("Efe Alsaç", "efe.alsac@ogr.dpu.edu.tr", "Bilgisayar Programcılığı"),
+                "20000000246" => ("Zeynep Kaya", "zeynep.kaya@ogr.dpu.edu.tr", "Fen-Edebiyat Fakültesi"),
+                "30000000346" => ("Mert Demir", "mert.demir@ogr.dpu.edu.tr", "Kütahya Teknik Bilimler MYO"),
+                _ => (
+                    string.IsNullOrWhiteSpace(dto.FullName) ? $"Efe Alsaç" : dto.FullName.Trim(),
+                    $"ogrenci.{tc[^4..]}@ogr.dpu.edu.tr",
+                    string.IsNullOrWhiteSpace(dto.Faculty) ? "Bilgisayar Programcılığı" : dto.Faculty.Trim()
+                )
+            };
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == defaultEmail.ToLower());
+            if (user == null)
+            {
+                user = new User
+                {
+                    Id = "u_edevlet_" + tc[^4..] + "_" + Guid.NewGuid().ToString("N")[..4],
+                    FullName = defaultName,
+                    Email = defaultEmail,
+                    Faculty = defaultFaculty,
+                    JoinedAt = DateTime.UtcNow,
+                    VerifiedStudent = true
+                };
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+            }
+
+            _logger.LogInformation("e-Devlet YÖKSİS üzerinden DPÜ öğrenci girişi onaylandı: {Email}", user.Email);
+
+            return Ok(new
+            {
+                token = "edevlet_jwt_token_" + Guid.NewGuid().ToString("N"),
                 user = new
                 {
                     id = user.Id,

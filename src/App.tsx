@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from './contexts/AuthContext';
 import AuthPage from './pages/AuthPage';
+import EDevletAuthPage from './pages/EDevletAuthPage';
 import AppShell from './components/AppShell';
 import HomePage from './pages/HomePage';
 import PazarPage from './pages/PazarPage';
@@ -49,6 +50,12 @@ export default function App() {
         <Route
           path="/auth"
           element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />}
+        />
+
+        {/* Full-page e-Devlet Identity Verification screen */}
+        <Route
+          path="/edevlet-giris"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <EDevletAuthPage />}
         />
 
         {/* Public Guest Landing & Authenticated App Shell */}

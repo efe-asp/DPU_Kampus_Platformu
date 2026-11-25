@@ -1,6 +1,7 @@
 // ========== Auth ==========
 export interface LoginRequest { email: string; password: string; }
 export interface RegisterRequest { fullName: string; email: string; faculty: string; password: string; }
+export interface EDevletLoginRequest { tcKimlikNo: string; password: string; fullName?: string; faculty?: string; }
 export interface AuthResponse { token: string; user: User; }
 export interface User {
   id: string;
